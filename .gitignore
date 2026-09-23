@@ -1,0 +1,8 @@
+.course-kit/
+course-kit.tar.gz
+build/
+install/
+log/
+
+.idea/
+__pycache__/
