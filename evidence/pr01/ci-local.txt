@@ -1,0 +1,10 @@
+$ shasum -a 256 course-kit.tar.gz
+SHA-256 matches pinned course kit
+$ python3 -m json.tool evidence/pr01/environment.json
+JSON valid
+$ python3 -m json.tool evidence/pr01/report.json
+JSON valid
+$ python3 .course-kit/v1/tools/check_practice.py PR01 --submission .
+PR01: контракт evidence выполнен
+
+Local PR01 CI commands passed

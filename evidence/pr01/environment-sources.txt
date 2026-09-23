@@ -1,0 +1,24 @@
+Recorded in Docker container ros2-pr01-recheck on 2026-09-23.
+/etc/os-release:
+PRETTY_NAME="Ubuntu 26.04.1 LTS"
+NAME="Ubuntu"
+VERSION_ID="26.04"
+VERSION="26.04.1 LTS (Resolute Raccoon)"
+VERSION_CODENAME=resolute
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=resolute
+LOGO=ubuntu-logo
+
+uname -m: aarch64
+ros2 doctor --report: see doctor.txt
+
+gz sim --versions: 10.5.0
+rclpy.utilities.get_rmw_implementation_identifier(): rmw_fastrtps_cpp
+Docker image: tiryoh/ros2-desktop-vnc:lyrical-20260906T0836
+Docker image digest: sha256:23bbfbd0bac264da8ef39fb599b9d58b209b06603b49e979eba8021286c56b6e
+ROS_DOMAIN_ID: 16 and 17 in the experiment
