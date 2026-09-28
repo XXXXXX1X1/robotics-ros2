@@ -1,0 +1,6 @@
+$ bash install/setup.bash && ros2 pkg prefix turtle_bringup
+Package not found
+exit=1
+$ source install/setup.bash && ros2 pkg prefix turtle_bringup
+/home/ubuntu/ros2_ws/install/turtle_bringup
+exit=0
