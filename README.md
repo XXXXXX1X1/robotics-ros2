@@ -1,3 +1,104 @@
+# ПР02. Пакет, launch и доставка команды turtlesim
+
+Практика: [условие ПР02](https://ros.lms.ci.nsu.ru/practices/pr02).
+Пакет — `src/turtle_bringup`; команды, выводы и сравнение «до / сбой /
+после» — в `evidence/pr02/commands.md`; топики и поля Twist — в
+`evidence/pr02/types.md`.
+
+## Среда
+
+Тот же образ, что в ПР01, контейнер `ros2-pr02`. Из корня репозитория на Mac:
+
+```bash
+docker run -d --name ros2-pr02 -p 6081:80 \
+  -v "$PWD:/home/ubuntu/ros2_ws" \
+  tiryoh/ros2-desktop-vnc:lyrical-20260906T0836
+```
+
+В каждом терминале (`docker exec -it -u ubuntu ros2-pr02 bash`):
+
+```bash
+source /opt/ros/lyrical/setup.bash
+export DISPLAY=:1 XAUTHORITY=/home/ubuntu/.Xauthority ROS_DOMAIN_ID=16
+cd /home/ubuntu/ros2_ws
+```
+
+## Сборка
+
+Пакет создан командой:
+
+```bash
+cd src
+ros2 pkg create --build-type ament_python --license Apache-2.0 \
+  turtle_bringup --dependencies launch launch_ros turtlesim
+cd ..
+```
+
+`build-empty.txt` снят до добавления `launch/`, `build.txt` — после:
+
+```bash
+set -o pipefail
+colcon build --symlink-install --packages-select turtle_bringup \
+  2>&1 | tee evidence/pr02/build.txt
+source install/setup.bash
+ros2 pkg prefix turtle_bringup
+```
+
+`setup.py` устанавливает `launch/*.launch.py` в
+`share/turtle_bringup/launch`, поэтому launch находится по имени пакета.
+
+## Запуск и доставка команды
+
+Терминал A (после `source install/setup.bash`):
+
+```bash
+ros2 launch turtle_bringup sim.launch.py
+```
+
+Терминал B:
+
+```bash
+ros2 topic echo /turtle1/pose --once
+ros2 topic pub --once /turtle1/cmd_vel geometry_msgs/msg/Twist \
+  '{linear: {x: 1.0}, angular: {z: 0.5}}'
+ros2 topic echo /turtle1/pose --once
+```
+
+## Сбой и исправление
+
+Тот же Twist публикуется в `/cmd_vel`, затем только имя меняется на
+`/turtle1/cmd_vel`. В обоих случаях в терминале C:
+
+```bash
+ros2 topic info /cmd_vel --verbose
+ros2 topic info /turtle1/cmd_vel --verbose
+ros2 topic echo /turtle1/pose --once
+```
+
+При `/cmd_vel` у издателя 0 подписчиков и поза не меняется, при
+`/turtle1/cmd_vel` подписчик `turtlesim` есть и черепаха едет. Подробности —
+в `evidence/pr02/commands.md`.
+
+## Проверка и сдача
+
+Course kit тот же — `v1-w03` (в нём есть манифест PR02). CI собирает
+`turtle_bringup` в `ros:lyrical-ros-base` (образ закреплён по digest),
+проверяет установленный `sim.launch.py`, выполняет `py_compile` launch-файла и
+`check_practice.py PR02`. GUI в CI не запускается. Локально:
+
+```bash
+python3 -m py_compile src/turtle_bringup/launch/sim.launch.py
+python3 .course-kit/v1/tools/check_practice.py PR02 --submission .
+```
+
+Первый коммит содержит пакет, README и CI, второй — `evidence/pr02/` и
+`AI_USAGE.md`; `report.json.commit` указывает на первый коммит.
+
+Проверка PR01 из CI убрана: после коммита ПР01 kit разрешает менять только
+`evidence/pr01/`. ПР01 сдана коммитом `3186c75` и его прогоном CI.
+
+---
+
 # ПР01. Окружение и граф ROS 2
 
 Практика: [условие ПР01](https://ros.lms.ci.nsu.ru/practices/pr01).

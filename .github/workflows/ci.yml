@@ -1,14 +1,15 @@
-name: PR01 evidence
+name: PR02 evidence
 
 on: [push, pull_request]
 
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     env:
       COURSE_KIT_URL: https://ros.lms.ci.nsu.ru/downloads/robotics-course-kit-v1-w03-7fbfd3e8161a.tar.gz
       COURSE_KIT_SHA256: 7fbfd3e8161ab6c6ebefc7663efdaf77d9a7d490399743507f33dcefbd5ac522
+      ROS_IMAGE: ros:lyrical-ros-base@sha256:0c19f326a339ed770ef1d4c0646a8b53bdb49dd5ff74b6de41ebdb8ac21e1806
     steps:
       - name: Checkout full history
         uses: actions/checkout@v4
@@ -21,19 +22,33 @@ jobs:
           printf '%s  %s\n' "$COURSE_KIT_SHA256" course-kit.tar.gz | sha256sum -c -
           mkdir -p .course-kit
           tar -xzf course-kit.tar.gz -C .course-kit
-      - name: Validate JSON and kit checksum
+      - name: Compile launch file
+        shell: bash
+        run: python3 -m py_compile src/turtle_bringup/launch/sim.launch.py
+      - name: Build turtle_bringup and check installed launch file
         shell: bash
         run: |
-          python3 -m json.tool evidence/pr01/environment.json > /dev/null
-          python3 -m json.tool evidence/pr01/report.json > /dev/null
+          docker run --rm -v "$PWD:/ws" -w /ws "$ROS_IMAGE" bash -c '
+            set -eo pipefail
+            source /opt/ros/lyrical/setup.bash
+            colcon build --packages-select turtle_bringup
+            source install/setup.bash
+            ros2 pkg prefix turtle_bringup
+            test -f install/turtle_bringup/share/turtle_bringup/launch/sim.launch.py
+            echo "sim.launch.py installed"
+          '
+      - name: Validate report and kit checksum
+        shell: bash
+        run: |
+          python3 -m json.tool evidence/pr02/report.json > /dev/null
           python3 - <<'PYTHON'
           import json
           import os
           from pathlib import Path
-          report = json.loads(Path('evidence/pr01/report.json').read_text())
+          report = json.loads(Path('evidence/pr02/report.json').read_text())
           if report['course_kit']['archive_sha256'] != os.environ['COURSE_KIT_SHA256']:
               raise SystemExit('Course kit SHA-256 in report differs from CI')
           PYTHON
-      - name: Check PR01 evidence and implementation commit
+      - name: Check PR02 evidence and implementation commit
         shell: bash
-        run: python3 .course-kit/v1/tools/check_practice.py PR01 --submission .
+        run: python3 .course-kit/v1/tools/check_practice.py PR02 --submission .
