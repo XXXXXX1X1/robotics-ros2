@@ -1,3 +1,60 @@
+# ПР03. Нода patrol: поза и команда
+
+Практика: [условие ПР03](https://ros.lms.ci.nsu.ru/practices/pr03).
+Пакет — `src/patrol`: нода `/patrol` хранит последнюю позу из
+`/turtle1/pose` и каждые 0.1 с публикует Twist в относительный `cmd_vel`.
+Выбор команды вынесен в чистую функцию `patrol/command.py`. Опыт, роли
+`init`/`spin`/callback/Ctrl+C и замеры — в `evidence/pr03/demo.md`, тесты —
+в `evidence/pr03/tests.txt`.
+
+## Сборка и тесты
+
+Среда та же, что в ПР02 (контейнер `ros2-pr02`, `ROS_DOMAIN_ID=16`):
+
+```bash
+colcon build --symlink-install --packages-select patrol
+source install/setup.bash
+python3 -m pytest src/patrol/test
+```
+
+Lint-тесты из шаблона `ros2 pkg create` получают путь к пакету явно,
+поэтому проверяют только `patrol` и одинаково работают из корня workspace и
+из `colcon test`.
+
+## Запуск
+
+Терминал A — turtlesim из ПР02:
+
+```bash
+ros2 launch turtle_bringup sim.launch.py
+```
+
+Терминал B — сбой (команды уходят в `/cmd_vel`), затем исправление:
+
+```bash
+ros2 run patrol patrol
+ros2 run patrol patrol --ros-args -r cmd_vel:=/turtle1/cmd_vel
+```
+
+Терминал C:
+
+```bash
+ros2 node info /patrol
+ros2 topic info /turtle1/cmd_vel --verbose
+timeout --signal=INT 10s ros2 topic hz /turtle1/cmd_vel
+```
+
+## Проверка и сдача
+
+Course kit обновлён до `v1-w04`
+(SHA-256 `fec6b4e886c19146078bf69fbf90a19279a4cd33f656642395350b299efeb226`).
+CI ставит зависимости `patrol` через `rosdep`, собирает `turtle_bringup` и
+`patrol`, запускает pytest и `colcon test`, затем
+`check_practice.py PR03`. Проверка PR02 из CI убрана по той же причине, что
+и PR01: ПР02 сдана коммитом `5de59f8` и его прогоном CI.
+
+---
+
 # ПР02. Пакет, launch и доставка команды turtlesim
 
 Практика: [условие ПР02](https://ros.lms.ci.nsu.ru/practices/pr02).
