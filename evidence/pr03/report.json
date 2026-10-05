@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "practice_id": "PR03",
+  "commit": "e6301d8814a25b2713629fdd850f45f308e280ef",
+  "course_kit": {
+    "version": "v1-w04",
+    "archive_sha256": "fec6b4e886c19146078bf69fbf90a19279a4cd33f656642395350b299efeb226"
+  },
+  "environment": {
+    "os": "Ubuntu 26.04.1 LTS (container)",
+    "ros_distro": "lyrical",
+    "python": "3.14.4",
+    "docker_image": "tiryoh/ros2-desktop-vnc:lyrical-20260906T0836",
+    "ros_domain_id": 16
+  },
+  "commands": [
+    "source /opt/ros/lyrical/setup.bash",
+    "export DISPLAY=:1 XAUTHORITY=/home/ubuntu/.Xauthority ROS_DOMAIN_ID=16",
+    "ros2 pkg create --build-type ament_python --license Apache-2.0 --node-name patrol patrol --dependencies rclpy geometry_msgs",
+    "set -o pipefail; colcon build --symlink-install --packages-select patrol 2>&1 | tee evidence/pr03/build.txt",
+    "source install/setup.bash",
+    "python3 -m pytest -v src/patrol/test",
+    "colcon test --packages-select patrol --event-handlers console_direct+",
+    "colcon test-result --verbose",
+    "ros2 run patrol patrol",
+    "ros2 node list --no-daemon --spin-time 5",
+    "ros2 run patrol patrol --ros-args -r cmd_vel:=/turtle1/cmd_vel",
+    "timeout --signal=INT --kill-after=2s 5s ros2 topic echo /turtle1/cmd_vel --once",
+    "ros2 launch turtle_bringup sim.launch.py",
+    "ros2 node info /patrol --no-daemon --spin-time 3",
+    "ros2 topic info /cmd_vel --verbose",
+    "ros2 topic info /turtle1/cmd_vel --verbose",
+    "timeout --signal=INT --kill-after=2s 5s ros2 topic echo /cmd_vel --once",
+    "ros2 topic echo /turtle1/pose --once",
+    "timeout --signal=INT 10s ros2 topic hz /turtle1/cmd_vel",
+    "timeout --signal=INT 10s ros2 topic echo /turtle1/cmd_vel --csv",
+    "python3 evidence/pr03/pose_sampler.py 4.5",
+    "python3 evidence/pr03/cmd_recorder.py 4.5",
+    "kill -INT -- -<pgid ros2 run patrol>",
+    "python3 .course-kit/v1/tools/check_practice.py PR03 --submission ."
+  ],
+  "tests": [
+    {
+      "name": "Минимальная нода из лекции собрана и видна как /patrol",
+      "status": "passed",
+      "evidence": "minimal-node-list.txt, minimal-node-info.txt"
+    },
+    {
+      "name": "pytest: choose_command (нет позы, обычная поза), clamp_command, flake8, pep257, mypy, xmllint — 10 passed, 1 skipped",
+      "status": "passed",
+      "evidence": "tests.txt"
+    },
+    {
+      "name": "colcon test-result: 11 tests, 0 errors, 0 failures, 1 skipped",
+      "status": "passed",
+      "evidence": "tests.txt"
+    },
+    {
+      "name": "До первой позы нода публикует нулевой Twist",
+      "status": "passed",
+      "evidence": "no-pose-nodes.txt, no-pose-cmd.txt"
+    },
+    {
+      "name": "Сбой: /patrol публикует 0.5/0.3 в /cmd_vel без подписчиков, у /turtle1/cmd_vel 0 издателей, поза не меняется",
+      "status": "passed",
+      "evidence": "broken-node-info.txt, broken-info-cmd_vel.txt, broken-info-turtle1-cmd_vel.txt, broken-cmd_vel-echo.txt, broken-pose-before.txt, broken-pose-after.txt"
+    },
+    {
+      "name": "Remap: /patrol -> /turtle1/cmd_vel -> turtlesim, поза (5.544, 5.544, 0) -> (6.534, 8.550, 2.501)",
+      "status": "passed",
+      "evidence": "fixed-node-info.txt, fixed-info-cmd_vel.txt, fixed-info-turtle1-cmd_vel.txt, fixed-pose-before.txt, fixed-pose-after.txt"
+    },
+    {
+      "name": "Частота команды за 10 с: ros2 topic hz 9.999 Гц (0.096–0.103 с), echo 92 сообщения",
+      "status": "passed",
+      "evidence": "cmd-hz.txt, cmd-hz-duration.txt, cmd-echo-10s.csv, cmd-echo-count.txt, cmd-echo-duration.txt"
+    },
+    {
+      "name": "После Ctrl+C черепаха останавливается через 1.09–1.12 с после последней команды, а не мгновенно",
+      "status": "passed",
+      "evidence": "stop-timing.txt, stop-runs/, stop-info-turtle1-cmd_vel.txt, stop-nodes.txt"
+    },
+    {
+      "name": "Ctrl+C под ros2 run: 5 остановок без трейсбека после перехода на with rclpy.init",
+      "status": "passed",
+      "evidence": "ctrl-c-lecture-main.log, ctrl-c-fixed-main.txt"
+    }
+  ],
+  "defect": {
+    "reproducer": "turtlesim запущен через ros2 launch turtle_bringup sim.launch.py; ros2 run patrol patrol без аргументов. ros2 node info /patrol: издатель /cmd_vel. ros2 topic info /cmd_vel --verbose: Publisher count 1 (patrol), Subscription count 0; /turtle1/cmd_vel: Publisher count 0, Subscription count 1 (turtlesim). В /cmd_vel идёт linear.x 0.5, angular.z 0.3, но поза остаётся (5.544, 5.544, 0.0) при linear_velocity 0.",
+    "root_cause": "Издатель создан с относительным именем cmd_vel. Нода в корневом пространстве имён, поэтому имя разрешается в /cmd_vel, а turtlesim подписан на /turtle1/cmd_vel. Тип совпадает, но издатель и подписчик соединяются только при совпадении полного имени топика; поза при этом приходит, и команда вычисляется правильно.",
+    "proof_after": "Тот же код запущен с ros2 run patrol patrol --ros-args -r cmd_vel:=/turtle1/cmd_vel. node info: издатель /turtle1/cmd_vel; topic info: Publisher count 1 (patrol), Subscription count 1 (turtlesim); /cmd_vel исчез (Unknown topic). Поза изменилась с (5.544, 5.544, 0.0) до (6.534, 8.550, 2.501) при v 0.5 и ω 0.3; ros2 topic hz за 10 с: 9.999 Гц. Подробности — в demo.md."
+  },
+  "claims": {
+    "public_tests_passed": true,
+    "defect_reproduced": true,
+    "defect_fixed": true
+  },
+  "time": {
+    "contact_academic_hours": 2,
+    "self_study_hours": 2
+  },
+  "ai_used": true
+}

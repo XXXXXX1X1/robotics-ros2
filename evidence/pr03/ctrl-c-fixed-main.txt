@@ -1,0 +1,6 @@
+# Ctrl+C (SIGINT всей группе процессов ros2 run) после исправления main, 5 запусков
+run 1: Traceback: 0; log: [ros2run]: Received signal:  Interrupt 
+run 2: Traceback: 0; log: [ros2run]: Received signal:  Interrupt 
+run 3: Traceback: 0; log: [ros2run]: Received signal:  Interrupt 
+run 4: Traceback: 0; log: [ros2run]: Received signal:  Interrupt 
+run 5: Traceback: 0; log: [ros2run]: Received signal:  Interrupt 

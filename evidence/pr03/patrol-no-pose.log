@@ -1,0 +1,8 @@
+[ros2run]: Received signal:  Interrupt
+Exception ignored in atexit callback <function shutdown at 0xffff8c8c41a0>:
+Traceback (most recent call last):
+  File "/usr/lib/python3.14/logging/__init__.py", line 2245, in shutdown
+    h.flush()
+  File "/usr/lib/python3.14/logging/__init__.py", line 1131, in flush
+    def flush(self):
+KeyboardInterrupt: 

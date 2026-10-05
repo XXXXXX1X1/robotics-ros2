@@ -1,0 +1,32 @@
+$ python3 -m pytest -v src/patrol/test
+============================= test session starts ==============================
+platform linux -- Python 3.14.4, pytest-9.0.2, pluggy-1.6.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/ubuntu/ros2_ws/src/patrol
+plugins: ament_xmllint-0.20.6, launch_testing_ros-0.29.9, launch_testing-3.9.8, ament_copyright-0.20.6, ament_lint-0.20.6, ament_flake8-0.20.6, ament_mypy-0.20.6, ament_pep257-0.20.6, typeguard-4.4.4, cov-5.0.0, colcon-core-0.21.1
+collecting ... collected 11 items
+
+src/patrol/test/test_command.py::test_no_pose_gives_zero_command PASSED  [  9%]
+src/patrol/test/test_command.py::test_pose_gives_arc_command PASSED      [ 18%]
+src/patrol/test/test_command.py::test_command_does_not_depend_on_pose_values PASSED [ 27%]
+src/patrol/test/test_command.py::test_clamp_keeps_command_in_range PASSED [ 36%]
+src/patrol/test/test_command.py::test_clamp_limits_both_signs PASSED     [ 45%]
+src/patrol/test/test_command.py::test_clamp_uses_custom_limits PASSED    [ 54%]
+src/patrol/test/test_copyright.py::test_copyright SKIPPED (No copyri...) [ 63%]
+src/patrol/test/test_flake8.py::test_flake8 PASSED                       [ 72%]
+src/patrol/test/test_mypy.py::test_mypy PASSED                           [ 81%]
+src/patrol/test/test_pep257.py::test_pep257 PASSED                       [ 90%]
+src/patrol/test/test_xmllint.py::test_xmllint PASSED                     [100%]
+
+======================== 10 passed, 1 skipped in 3.78s =========================
+exit=0
+
+$ colcon test --packages-select patrol --event-handlers console_direct+
+======================== 10 passed, 1 skipped in 5.78s =========================
+Finished <<< patrol [9.13s]
+Summary: 1 package finished [9.21s]
+exit=0
+
+$ colcon test-result --verbose
+Summary: 11 tests, 0 errors, 0 failures, 1 skipped
+exit=0
