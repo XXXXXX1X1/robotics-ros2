@@ -1,0 +1,7 @@
+[INFO] [launch]: All log files can be found below /home/ubuntu/.ros/log/2026-10-14-06-03-55-016532-f3fcf94a7005-2260
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [turtlesim_node-1]: process started with pid [2274]
+[turtlesim_node-1] [INFO] [1791957835.178903463] [turtlesim]: Starting turtlesim with node name /turtlesim
+[turtlesim_node-1] [INFO] [1791957835.184714879] [turtlesim]: Spawning turtle [turtle1] at x=[5.544445], y=[5.544445], theta=[0.000000]
+[turtlesim_node-1] [INFO] [1791957901.306406799] [turtlesim]: Clearing turtlesim.
+[turtlesim_node-1] [INFO] [1791957905.213959509] [turtlesim]: Rotation goal completed successfully

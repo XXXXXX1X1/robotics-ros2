@@ -1,0 +1,43 @@
+$ git log --oneline -1 pr04-defect   # на хосте
+38f3a0e PR04 defect: disable publish_hz range check
+exit=0
+
+$ git diff main pr04-defect
+diff --git a/src/patrol/patrol/command.py b/src/patrol/patrol/command.py
+index eed3585..27230a0 100644
+--- a/src/patrol/patrol/command.py
++++ b/src/patrol/patrol/command.py
+@@ -30,9 +30,7 @@ def validate_values(
+     for name, value in values.items():
+         if not math.isfinite(value):
+             return False, f'{name} must be a finite number, got {value}'
+-    if not MIN_PUBLISH_HZ <= publish_hz <= MAX_PUBLISH_HZ:
+-        return False, (f'publish_hz must be in [{MIN_PUBLISH_HZ}, {MAX_PUBLISH_HZ}] Hz, '
+-                       f'got {publish_hz}')
++    # ДЕФЕКТ ПР04: проверка диапазона publish_hz временно отключена.
+     if not 0.0 <= linear_speed <= MAX_LINEAR_SPEED:
+         return False, f'linear_speed must be in [0, {MAX_LINEAR_SPEED}] m/s, got {linear_speed}'
+     if not -MAX_TURN_RATE <= turn_rate <= MAX_TURN_RATE:
+exit=0
+
+$ ros2 param set /patrol publish_hz 5.0
+Set parameter successful
+exit=0
+
+$ timeout --signal=INT --kill-after=2s 5s ros2 param set /patrol publish_hz 0.0
+exit=124
+
+$ ros2 node list --no-daemon --spin-time 3
+/turtlesim
+exit=0
+
+$ ros2 topic info /turtle1/cmd_vel
+Type: geometry_msgs/msg/Twist
+Publisher count: 0
+Subscription count: 1
+exit=0
+
+$ timeout --signal=INT 5s ros2 topic hz /turtle1/cmd_vel
+exit=124
+
+patrol exit=1

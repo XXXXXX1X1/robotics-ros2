@@ -1,0 +1,288 @@
+$ ros2 action list -t
+/turtle1/rotate_absolute [turtlesim_msgs/action/RotateAbsolute]
+exit=0
+
+$ ros2 action info /turtle1/rotate_absolute
+Action: /turtle1/rotate_absolute
+Action clients: 0
+Action servers: 1
+    /turtlesim
+exit=0
+
+$ ros2 action send_goal /turtle1/rotate_absolute turtlesim_msgs/action/RotateAbsolute {theta: 1.57} --feedback
+Waiting for an action server to become available...
+Sending goal:
+     theta: 1.57
+
+Goal accepted with ID: aa4e1e3ffffd46ea89a634261c873965
+
+Feedback:
+    remaining: -1.4012292623519897
+
+Feedback:
+    remaining: -1.385229229927063
+
+Feedback:
+    remaining: -1.3692294359207153
+
+Feedback:
+    remaining: -1.3532294034957886
+
+Feedback:
+    remaining: -1.3372293710708618
+
+Feedback:
+    remaining: -1.321229338645935
+
+Feedback:
+    remaining: -1.3052293062210083
+
+Feedback:
+    remaining: -1.2892292737960815
+
+Feedback:
+    remaining: -1.2732292413711548
+
+Feedback:
+    remaining: -1.2572294473648071
+
+Feedback:
+    remaining: -1.2412294149398804
+
+Feedback:
+    remaining: -1.2252293825149536
+
+Feedback:
+    remaining: -1.2092293500900269
+
+Feedback:
+    remaining: -1.1932293176651
+
+Feedback:
+    remaining: -1.1772292852401733
+
+Feedback:
+    remaining: -1.1612292528152466
+
+Feedback:
+    remaining: -1.145229458808899
+
+Feedback:
+    remaining: -1.1292294263839722
+
+Feedback:
+    remaining: -1.1132293939590454
+
+Feedback:
+    remaining: -1.0972293615341187
+
+Feedback:
+    remaining: -1.081229329109192
+
+Feedback:
+    remaining: -1.0652292966842651
+
+Feedback:
+    remaining: -1.0492292642593384
+
+Feedback:
+    remaining: -1.0332292318344116
+
+Feedback:
+    remaining: -1.017229437828064
+
+Feedback:
+    remaining: -1.0012294054031372
+
+Feedback:
+    remaining: -0.9852293729782104
+
+Feedback:
+    remaining: -0.9692293405532837
+
+Feedback:
+    remaining: -0.9532293081283569
+
+Feedback:
+    remaining: -0.9372292757034302
+
+Feedback:
+    remaining: -0.9212292432785034
+
+Feedback:
+    remaining: -0.9052294492721558
+
+Feedback:
+    remaining: -0.889229416847229
+
+Feedback:
+    remaining: -0.8732293844223022
+
+Feedback:
+    remaining: -0.8572293519973755
+
+Feedback:
+    remaining: -0.8412293195724487
+
+Feedback:
+    remaining: -0.825229287147522
+
+Feedback:
+    remaining: -0.8092292547225952
+
+Feedback:
+    remaining: -0.7932294607162476
+
+Feedback:
+    remaining: -0.7772294282913208
+
+Feedback:
+    remaining: -0.761229395866394
+
+Feedback:
+    remaining: -0.7452293634414673
+
+Feedback:
+    remaining: -0.7292293310165405
+
+Feedback:
+    remaining: -0.7132292985916138
+
+Feedback:
+    remaining: -0.697229266166687
+
+Feedback:
+    remaining: -0.6812292337417603
+
+Feedback:
+    remaining: -0.6652294397354126
+
+Feedback:
+    remaining: -0.6492294073104858
+
+Feedback:
+    remaining: -0.6332293748855591
+
+Feedback:
+    remaining: -0.6172293424606323
+
+Feedback:
+    remaining: -0.6012293100357056
+
+Feedback:
+    remaining: -0.5852292776107788
+
+Feedback:
+    remaining: -0.569229245185852
+
+Feedback:
+    remaining: -0.5532294511795044
+
+Feedback:
+    remaining: -0.5372294187545776
+
+Feedback:
+    remaining: -0.5212293863296509
+
+Feedback:
+    remaining: -0.5052293539047241
+
+Feedback:
+    remaining: -0.48922932147979736
+
+Feedback:
+    remaining: -0.4732292890548706
+
+Feedback:
+    remaining: -0.45722925662994385
+
+Feedback:
+    remaining: -0.4412294626235962
+
+Feedback:
+    remaining: -0.4252293109893799
+
+Feedback:
+    remaining: -0.4092293977737427
+
+Feedback:
+    remaining: -0.3932293653488159
+
+Feedback:
+    remaining: -0.37722933292388916
+
+Feedback:
+    remaining: -0.3612293004989624
+
+Feedback:
+    remaining: -0.3452293872833252
+
+Feedback:
+    remaining: -0.32922935485839844
+
+Feedback:
+    remaining: -0.3132293224334717
+
+Feedback:
+    remaining: -0.2972292900085449
+
+Feedback:
+    remaining: -0.2812293767929077
+
+Feedback:
+    remaining: -0.26522934436798096
+
+Feedback:
+    remaining: -0.2492293119430542
+
+Feedback:
+    remaining: -0.233229398727417
+
+Feedback:
+    remaining: -0.21722936630249023
+
+Feedback:
+    remaining: -0.20122933387756348
+
+Feedback:
+    remaining: -0.18522930145263672
+
+Feedback:
+    remaining: -0.1692293882369995
+
+Feedback:
+    remaining: -0.15322935581207275
+
+Feedback:
+    remaining: -0.137229323387146
+
+Feedback:
+    remaining: -0.12122929096221924
+
+Feedback:
+    remaining: -0.10522937774658203
+
+Feedback:
+    remaining: -0.08922934532165527
+
+Feedback:
+    remaining: -0.07322931289672852
+
+Feedback:
+    remaining: -0.05722939968109131
+
+Feedback:
+    remaining: -0.04122936725616455
+
+Feedback:
+    remaining: -0.025229334831237793
+
+Feedback:
+    remaining: -0.009229302406311035
+
+Result:
+    delta: 1.3919999599456787
+
+Goal finished with status: SUCCEEDED
+exit=0
+

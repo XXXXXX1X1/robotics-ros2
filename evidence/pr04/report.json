@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "practice_id": "PR04",
+  "commit": "3c87c03bd6edaa563e1b365e3f3f970d32b7a1c8",
+  "course_kit": {
+    "version": "v1-w04",
+    "archive_sha256": "fec6b4e886c19146078bf69fbf90a19279a4cd33f656642395350b299efeb226"
+  },
+  "environment": {
+    "os": "Ubuntu 26.04.1 LTS (container)",
+    "ros_distro": "lyrical",
+    "python": "3.14.4",
+    "docker_image": "tiryoh/ros2-desktop-vnc:lyrical-20260906T0836",
+    "ros_domain_id": 16
+  },
+  "commands": [
+    "source /opt/ros/lyrical/setup.bash",
+    "export DISPLAY=:1 XAUTHORITY=/home/ubuntu/.Xauthority ROS_DOMAIN_ID=16",
+    "colcon build --symlink-install --packages-select turtle_bringup patrol",
+    "source install/setup.bash",
+    "python3 -m pytest -v src/patrol/test",
+    "colcon test --packages-select patrol --event-handlers console_direct+",
+    "colcon test-result --verbose",
+    "ros2 launch turtle_bringup sim.launch.py",
+    "ros2 run patrol patrol --ros-args -r cmd_vel:=/turtle1/cmd_vel",
+    "ros2 param list /patrol",
+    "ros2 param get /patrol publish_hz",
+    "timeout --signal=INT 10s ros2 topic hz /turtle1/cmd_vel",
+    "ros2 param set /patrol publish_hz 5.0",
+    "ros2 param set /patrol publish_hz 0.0",
+    "ros2 param set /patrol publish_hz -1.0",
+    "ros2 param set /patrol publish_hz .nan",
+    "ros2 param set /patrol linear_speed 2.0",
+    "ros2 param set /patrol linear_speed 1.0",
+    "ros2 param set /patrol turn_rate -0.6",
+    "timeout --signal=INT --kill-after=2s 5s ros2 topic echo /turtle1/cmd_vel --once",
+    "git worktree add -b pr04-defect tmp/pr04-defect HEAD",
+    "timeout --signal=INT --kill-after=2s 5s ros2 param set /patrol publish_hz 0.0",
+    "ros2 node list --no-daemon --spin-time 3",
+    "ros2 topic info /turtle1/cmd_vel",
+    "ros2 service list -t",
+    "ros2 service call /clear std_srvs/srv/Empty '{}'",
+    "ros2 topic echo /turtle1/pose --once",
+    "ros2 action list -t",
+    "ros2 action info /turtle1/rotate_absolute",
+    "ros2 action send_goal /turtle1/rotate_absolute turtlesim_msgs/action/RotateAbsolute '{theta: 1.57}' --feedback",
+    "python3 .course-kit/v1/tools/check_practice.py PR04 --submission ."
+  ],
+  "tests": [
+    {
+      "name": "pytest: validate_values (10→5 Гц, 0, отрицательное, NaN, inf, границы), choose_command, нода с параметрами, flake8, pep257, mypy, xmllint — 30 passed, 1 skipped",
+      "status": "passed",
+      "evidence": "tests.txt"
+    },
+    {
+      "name": "colcon test: 30 passed, 1 skipped; test-result 0 errors, 0 failures",
+      "status": "passed",
+      "evidence": "tests.txt"
+    },
+    {
+      "name": "Параметры по умолчанию 0.5 / 0.3 / 10.0, поток 9.998 Гц",
+      "status": "passed",
+      "evidence": "fixed-params.txt, hz-10.txt"
+    },
+    {
+      "name": "publish_hz 10→5: Set parameter successful, get 5.0, поток 5.000 Гц (0.181–0.222 с)",
+      "status": "passed",
+      "evidence": "set-5.txt, hz-5.txt"
+    },
+    {
+      "name": "0.0, -1.0, NaN и linear_speed 2.0 отклонены с причиной; publish_hz остаётся 5.0, /patrol жива, поток 5.000 Гц",
+      "status": "passed",
+      "evidence": "set-invalid.txt, hz-after-reject.txt"
+    },
+    {
+      "name": "linear_speed 1.0 и turn_rate -0.6 меняют Twist в /turtle1/cmd_vel",
+      "status": "passed",
+      "evidence": "set-speed.txt"
+    },
+    {
+      "name": "Ветка pr04-defect: те же тесты — 7 failed (ZeroDivisionError, RCLError, отказ не получен), 19 passed",
+      "status": "passed",
+      "evidence": "tests-defect.txt"
+    },
+    {
+      "name": "/clear стирает след, поза не меняется; /turtle1/rotate_absolute: принята, 88 feedback, result delta 1.392, SUCCEEDED",
+      "status": "passed",
+      "evidence": "clear.txt, action.txt, turtlesim.log"
+    }
+  ],
+  "defect": {
+    "reproducer": "Ветка pr04-defect (38f3a0e): из validate_values убрана проверка диапазона publish_hz. turtlesim через ros2 launch turtle_bringup sim.launch.py, ros2 run patrol patrol --ros-args -r cmd_vel:=/turtle1/cmd_vel; ros2 param set /patrol publish_hz 5.0 — успешно, затем ros2 param set /patrol publish_hz 0.0 — ответа нет (timeout, код 124). В логе ноды ZeroDivisionError в apply (patrol.py:49, create_timer(1.0 / self.publish_hz)), ros2run: Process exited with failure 1; ros2 node list — только /turtlesim; /turtle1/cmd_vel: Publisher count 0; ros2 topic hz не видит сообщений.",
+    "root_cause": "Без проверки on-set колбэк принял 0, rclpy записал параметр и вызвал post-set apply. apply отменил и уничтожил прежний таймер, затем вычислял период 1/publish_hz и получил деление на ноль. Исключение из колбэка сервиса параметров вышло из rclpy.spin, main ловит только Ctrl+C, и процесс завершился. Активное состояние меняется до ошибки, поэтому допустимость надо проверять до применения.",
+    "proof_after": "Проверка возвращена (main, 3c87c03). Та же последовательность: publish_hz 5.0 принят, поток 5.000 Гц; 0.0 — Setting parameter failed: publish_hz must be in [1.0, 30.0] Hz, got 0.0; -1.0 и .nan тоже отклонены; get — 5.0, /patrol в графе, поток 5.000 Гц (0.195–0.205 с). test_invalid_rate_keeps_value_and_timer: отказ, значение 5.0 и тот же объект таймера; на ветке дефекта этот же тест падает с ZeroDivisionError. Подробности — в parameters.md."
+  },
+  "claims": {
+    "public_tests_passed": true,
+    "defect_reproduced": true,
+    "defect_fixed": true
+  },
+  "time": {
+    "contact_academic_hours": 2,
+    "self_study_hours": 2
+  },
+  "ai_used": true
+}

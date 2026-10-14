@@ -1,0 +1,29 @@
+$ ros2 param set /patrol publish_hz 0.0
+Setting parameter failed: publish_hz must be in [1.0, 30.0] Hz, got 0.0
+exit=0
+
+$ ros2 param get /patrol publish_hz
+Double value is: 5.0
+exit=0
+
+$ ros2 param set /patrol publish_hz -1.0
+Setting parameter failed: publish_hz must be in [1.0, 30.0] Hz, got -1.0
+exit=0
+
+$ ros2 param set /patrol publish_hz .nan
+Setting parameter failed: publish_hz must be a finite number, got nan
+exit=0
+
+$ ros2 param set /patrol linear_speed 2.0
+Setting parameter failed: linear_speed must be in [0, 1.0] m/s, got 2.0
+exit=0
+
+$ ros2 param get /patrol publish_hz
+Double value is: 5.0
+exit=0
+
+$ ros2 node list --no-daemon --spin-time 3
+/patrol
+/turtlesim
+exit=0
+

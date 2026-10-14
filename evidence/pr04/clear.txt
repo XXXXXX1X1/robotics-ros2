@@ -1,0 +1,48 @@
+$ ros2 service list -t
+/clear [std_srvs/srv/Empty]
+/kill [turtlesim_msgs/srv/Kill]
+/reset [std_srvs/srv/Empty]
+/spawn [turtlesim_msgs/srv/Spawn]
+/turtle1/set_pen [turtlesim_msgs/srv/SetPen]
+/turtle1/teleport_absolute [turtlesim_msgs/srv/TeleportAbsolute]
+/turtle1/teleport_relative [turtlesim_msgs/srv/TeleportRelative]
+/turtlesim/describe_parameters [rcl_interfaces/srv/DescribeParameters]
+/turtlesim/get_parameter_types [rcl_interfaces/srv/GetParameterTypes]
+/turtlesim/get_parameters [rcl_interfaces/srv/GetParameters]
+/turtlesim/get_type_description [type_description_interfaces/srv/GetTypeDescription]
+/turtlesim/list_parameters [rcl_interfaces/srv/ListParameters]
+/turtlesim/set_parameters [rcl_interfaces/srv/SetParameters]
+/turtlesim/set_parameters_atomically [rcl_interfaces/srv/SetParametersAtomically]
+exit=0
+
+$ ros2 service type /clear
+std_srvs/srv/Empty
+exit=0
+
+$ ros2 topic echo /turtle1/pose --once
+x: 1.9306063652038574
+y: 6.471914291381836
+theta: 2.971229314804077
+linear_velocity: 0.0
+angular_velocity: 0.0
+---
+exit=0
+
+$ ros2 service call /clear std_srvs/srv/Empty {}
+waiting for service to become available...
+requester: making request: std_srvs.srv.Empty_Request()
+
+response:
+std_srvs.srv.Empty_Response()
+
+exit=0
+
+$ ros2 topic echo /turtle1/pose --once
+x: 1.9306063652038574
+y: 6.471914291381836
+theta: 2.971229314804077
+linear_velocity: 0.0
+angular_velocity: 0.0
+---
+exit=0
+

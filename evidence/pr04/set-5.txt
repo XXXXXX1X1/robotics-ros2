@@ -1,0 +1,8 @@
+$ ros2 param set /patrol publish_hz 5.0
+Set parameter successful
+exit=0
+
+$ ros2 param get /patrol publish_hz
+Double value is: 5.0
+exit=0
+

@@ -1,0 +1,19 @@
+$ timeout --signal=INT 10s ros2 topic hz /turtle1/cmd_vel
+average rate: 4.997
+	min: 0.195s max: 0.205s std dev: 0.00366s window: 4
+average rate: 4.999
+	min: 0.195s max: 0.205s std dev: 0.00238s window: 10
+average rate: 5.000
+	min: 0.195s max: 0.205s std dev: 0.00251s window: 15
+average rate: 4.998
+	min: 0.195s max: 0.205s std dev: 0.00239s window: 20
+average rate: 5.000
+	min: 0.195s max: 0.205s std dev: 0.00225s window: 25
+average rate: 4.999
+	min: 0.195s max: 0.205s std dev: 0.00210s window: 30
+average rate: 4.997
+	min: 0.195s max: 0.205s std dev: 0.00213s window: 35
+average rate: 5.000
+	min: 0.195s max: 0.205s std dev: 0.00222s window: 40
+exit=124
+

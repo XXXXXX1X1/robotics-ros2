@@ -1,0 +1,232 @@
+$ python3 -m pytest -v src/patrol/test/test_patrol_node.py src/patrol/test/test_command.py   # ветка pr04-defect
+============================= test session starts ==============================
+platform linux -- Python 3.14.4, pytest-9.0.2, pluggy-1.6.0 -- /usr/bin/python3
+rootdir: /home/ubuntu/ros2_ws/tmp/pr04-defect/src/patrol
+plugins: ament_xmllint-0.20.6, launch_testing_ros-0.29.9, launch_testing-3.9.8, ament_copyright-0.20.6, ament_lint-0.20.6, ament_flake8-0.20.6, ament_mypy-0.20.6, ament_pep257-0.20.6, typeguard-4.4.4, cov-5.0.0, colcon-core-0.21.1
+collecting ... collected 26 items
+
+src/patrol/test/test_patrol_node.py::test_defaults_give_10_hz_timer PASSED [  3%]
+src/patrol/test/test_patrol_node.py::test_valid_rate_replaces_timer PASSED [  7%]
+src/patrol/test/test_patrol_node.py::test_invalid_rate_keeps_value_and_timer[0.0] FAILED [ 11%]
+src/patrol/test/test_patrol_node.py::test_invalid_rate_keeps_value_and_timer[-1.0] FAILED [ 15%]
+src/patrol/test/test_patrol_node.py::test_invalid_rate_keeps_value_and_timer[nan] PASSED [ 19%]
+src/patrol/test/test_patrol_node.py::test_speed_change_keeps_timer PASSED [ 23%]
+src/patrol/test/test_patrol_node.py::test_invalid_set_rejects_whole_batch FAILED [ 26%]
+src/patrol/test/test_command.py::test_no_pose_gives_zero_command PASSED  [ 30%]
+src/patrol/test/test_command.py::test_pose_gives_parameter_command PASSED [ 34%]
+src/patrol/test/test_command.py::test_command_does_not_depend_on_pose_values PASSED [ 38%]
+src/patrol/test/test_command.py::test_defaults_and_change_to_5_hz_are_valid PASSED [ 42%]
+src/patrol/test/test_command.py::test_invalid_publish_hz_is_rejected[0.0] FAILED [ 46%]
+src/patrol/test/test_command.py::test_invalid_publish_hz_is_rejected[-5.0] FAILED [ 50%]
+src/patrol/test/test_command.py::test_invalid_publish_hz_is_rejected[nan] PASSED [ 53%]
+src/patrol/test/test_command.py::test_invalid_publish_hz_is_rejected[inf] PASSED [ 57%]
+src/patrol/test/test_command.py::test_invalid_publish_hz_is_rejected[0.5] FAILED [ 61%]
+src/patrol/test/test_command.py::test_invalid_publish_hz_is_rejected[30.5] FAILED [ 65%]
+src/patrol/test/test_command.py::test_publish_hz_bounds_are_valid[1.0] PASSED [ 69%]
+src/patrol/test/test_command.py::test_publish_hz_bounds_are_valid[30.0] PASSED [ 73%]
+src/patrol/test/test_command.py::test_invalid_linear_speed_is_rejected[-0.1] PASSED [ 76%]
+src/patrol/test/test_command.py::test_invalid_linear_speed_is_rejected[1.1] PASSED [ 80%]
+src/patrol/test/test_command.py::test_invalid_linear_speed_is_rejected[nan] PASSED [ 84%]
+src/patrol/test/test_command.py::test_invalid_turn_rate_is_rejected[-1.1] PASSED [ 88%]
+src/patrol/test/test_command.py::test_invalid_turn_rate_is_rejected[1.1] PASSED [ 92%]
+src/patrol/test/test_command.py::test_invalid_turn_rate_is_rejected[-inf] PASSED [ 96%]
+src/patrol/test/test_command.py::test_speed_and_turn_bounds_are_valid PASSED [100%]
+
+=================================== FAILURES ===================================
+_________________ test_invalid_rate_keeps_value_and_timer[0.0] _________________
+
+node = <patrol.patrol.Patrol object at 0xffff93171bd0>, publish_hz = 0.0
+
+    @pytest.mark.parametrize('publish_hz', [0.0, -1.0, float('nan')])
+    def test_invalid_rate_keeps_value_and_timer(node: Patrol, publish_hz: float) -> None:
+        node.set_parameters_atomically([Parameter('publish_hz', value=5.0)])
+        old_timer = node.timer
+>       result = node.set_parameters_atomically([Parameter('publish_hz', value=publish_hz)])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+src/patrol/test/test_patrol_node.py:42: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/ros/lyrical/lib/python3.14/site-packages/rclpy/node.py:820: in set_parameters_atomically
+    return self._set_parameters_atomically(parameter_list)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/ros/lyrical/lib/python3.14/site-packages/rclpy/node.py:840: in _set_parameters_atomically
+    return self._set_parameters_atomically_common(parameter_list)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/ros/lyrical/lib/python3.14/site-packages/rclpy/node.py:944: in _set_parameters_atomically_common
+    self._call_post_set_parameters_callback(parameter_list)
+/opt/ros/lyrical/lib/python3.14/site-packages/rclpy/node.py:1038: in _call_post_set_parameters_callback
+    callback(parameter_list)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <patrol.patrol.Patrol object at 0xffff93171bd0>
+updates = [<rclpy.parameter.Parameter object at 0xffff9050cb30>]
+
+    def apply(self, updates: list[Parameter]) -> None:
+        accepted = {p.name: p.value for p in updates}
+        old_hz = self.publish_hz
+        self.linear_speed = accepted.get('linear_speed', self.linear_speed)
+        self.turn_rate = accepted.get('turn_rate', self.turn_rate)
+        self.publish_hz = accepted.get('publish_hz', self.publish_hz)
+        if self.publish_hz != old_hz:
+            self.timer.cancel()
+            self.destroy_timer(self.timer)
+>           self.timer = self.create_timer(1.0 / self.publish_hz, self.tick)
+                                           ^^^^^^^^^^^^^^^^^^^^^
+E           ZeroDivisionError: division by zero
+
+build/patrol/patrol/patrol.py:49: ZeroDivisionError
+________________ test_invalid_rate_keeps_value_and_timer[-1.0] _________________
+
+node = <patrol.patrol.Patrol object at 0xffffb360c7d0>, publish_hz = -1.0
+
+    @pytest.mark.parametrize('publish_hz', [0.0, -1.0, float('nan')])
+    def test_invalid_rate_keeps_value_and_timer(node: Patrol, publish_hz: float) -> None:
+        node.set_parameters_atomically([Parameter('publish_hz', value=5.0)])
+        old_timer = node.timer
+>       result = node.set_parameters_atomically([Parameter('publish_hz', value=publish_hz)])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+src/patrol/test/test_patrol_node.py:42: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/ros/lyrical/lib/python3.14/site-packages/rclpy/node.py:820: in set_parameters_atomically
+    return self._set_parameters_atomically(parameter_list)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/ros/lyrical/lib/python3.14/site-packages/rclpy/node.py:840: in _set_parameters_atomically
+    return self._set_parameters_atomically_common(parameter_list)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/ros/lyrical/lib/python3.14/site-packages/rclpy/node.py:944: in _set_parameters_atomically_common
+    self._call_post_set_parameters_callback(parameter_list)
+/opt/ros/lyrical/lib/python3.14/site-packages/rclpy/node.py:1038: in _call_post_set_parameters_callback
+    callback(parameter_list)
+build/patrol/patrol/patrol.py:49: in apply
+    self.timer = self.create_timer(1.0 / self.publish_hz, self.tick)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/ros/lyrical/lib/python3.14/site-packages/rclpy/node.py:2521: in create_timer
+    timer = Timer(
+/opt/ros/lyrical/lib/python3.14/site-packages/rclpy/timer.py:207: in __init__
+    super().__init__(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <rclpy.timer.Timer object at 0xffff905c8270>
+callback = <bound method Patrol.tick of <patrol.patrol.Patrol object at 0xffffb360c7d0>>
+timer_period_ns = -1000000000, clock = Clock(clock_type=ROS_TIME)
+
+    def __init__(
+        self,
+        callback: Optional[TimerCallbackUnion],
+        timer_period_ns: int,
+        clock: Clock,
+        *,
+        on_destroy: Optional[Callable[['BaseTimer'], None]] = None,
+        context: Optional[Context] = None,
+        autostart: bool = True
+    ) -> None:
+        """
+        Create a timer.
+    
+        .. warning:: Users should not create a timer with this constructor, instead they
+           should call :meth:`.Node.create_timer` or :meth:`.AsyncNode.create_timer`.
+        """
+        self._context = get_default_context() if context is None else context
+        self._clock = clock
+        if self._context.handle is None:
+            raise RuntimeError('Context must be initialized before create a _rclpy.Timer.')
+        with self._clock.handle, self._context.handle:
+>           self.__timer = _rclpy.Timer(
+                self._clock.handle, self._context.handle, timer_period_ns, autostart)
+E           rclpy._rclpy_pybind11.RCLError: failed to create timer: timer period must be non-negative, at ./src/rcl/timer.c:117
+
+/opt/ros/lyrical/lib/python3.14/site-packages/rclpy/timer.py:99: RCLError
+_____________________ test_invalid_set_rejects_whole_batch _____________________
+
+node = <patrol.patrol.Patrol object at 0xffff931739d0>
+
+    def test_invalid_set_rejects_whole_batch(node: Patrol) -> None:
+>       result = node.set_parameters_atomically([
+            Parameter('linear_speed', value=0.8), Parameter('publish_hz', value=0.0)])
+
+src/patrol/test/test_patrol_node.py:61: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/ros/lyrical/lib/python3.14/site-packages/rclpy/node.py:820: in set_parameters_atomically
+    return self._set_parameters_atomically(parameter_list)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/ros/lyrical/lib/python3.14/site-packages/rclpy/node.py:840: in _set_parameters_atomically
+    return self._set_parameters_atomically_common(parameter_list)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/ros/lyrical/lib/python3.14/site-packages/rclpy/node.py:944: in _set_parameters_atomically_common
+    self._call_post_set_parameters_callback(parameter_list)
+/opt/ros/lyrical/lib/python3.14/site-packages/rclpy/node.py:1038: in _call_post_set_parameters_callback
+    callback(parameter_list)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <patrol.patrol.Patrol object at 0xffff931739d0>
+updates = [<rclpy.parameter.Parameter object at 0xffff90583c50>, <rclpy.parameter.Parameter object at 0xffff90583cb0>]
+
+    def apply(self, updates: list[Parameter]) -> None:
+        accepted = {p.name: p.value for p in updates}
+        old_hz = self.publish_hz
+        self.linear_speed = accepted.get('linear_speed', self.linear_speed)
+        self.turn_rate = accepted.get('turn_rate', self.turn_rate)
+        self.publish_hz = accepted.get('publish_hz', self.publish_hz)
+        if self.publish_hz != old_hz:
+            self.timer.cancel()
+            self.destroy_timer(self.timer)
+>           self.timer = self.create_timer(1.0 / self.publish_hz, self.tick)
+                                           ^^^^^^^^^^^^^^^^^^^^^
+E           ZeroDivisionError: division by zero
+
+build/patrol/patrol/patrol.py:49: ZeroDivisionError
+___________________ test_invalid_publish_hz_is_rejected[0.0] ___________________
+
+publish_hz = 0.0
+
+    @pytest.mark.parametrize('publish_hz', [0.0, -5.0, math.nan, math.inf, 0.5, 30.5])
+    def test_invalid_publish_hz_is_rejected(publish_hz: float) -> None:
+        ok, reason = validate_values(publish_hz, 0.5, 0.3)
+>       assert not ok
+E       assert not True
+
+src/patrol/test/test_command.py:31: AssertionError
+__________________ test_invalid_publish_hz_is_rejected[-5.0] ___________________
+
+publish_hz = -5.0
+
+    @pytest.mark.parametrize('publish_hz', [0.0, -5.0, math.nan, math.inf, 0.5, 30.5])
+    def test_invalid_publish_hz_is_rejected(publish_hz: float) -> None:
+        ok, reason = validate_values(publish_hz, 0.5, 0.3)
+>       assert not ok
+E       assert not True
+
+src/patrol/test/test_command.py:31: AssertionError
+___________________ test_invalid_publish_hz_is_rejected[0.5] ___________________
+
+publish_hz = 0.5
+
+    @pytest.mark.parametrize('publish_hz', [0.0, -5.0, math.nan, math.inf, 0.5, 30.5])
+    def test_invalid_publish_hz_is_rejected(publish_hz: float) -> None:
+        ok, reason = validate_values(publish_hz, 0.5, 0.3)
+>       assert not ok
+E       assert not True
+
+src/patrol/test/test_command.py:31: AssertionError
+__________________ test_invalid_publish_hz_is_rejected[30.5] ___________________
+
+publish_hz = 30.5
+
+    @pytest.mark.parametrize('publish_hz', [0.0, -5.0, math.nan, math.inf, 0.5, 30.5])
+    def test_invalid_publish_hz_is_rejected(publish_hz: float) -> None:
+        ok, reason = validate_values(publish_hz, 0.5, 0.3)
+>       assert not ok
+E       assert not True
+
+src/patrol/test/test_command.py:31: AssertionError
+=========================== short test summary info ============================
+FAILED src/patrol/test/test_patrol_node.py::test_invalid_rate_keeps_value_and_timer[0.0]
+FAILED src/patrol/test/test_patrol_node.py::test_invalid_rate_keeps_value_and_timer[-1.0]
+FAILED src/patrol/test/test_patrol_node.py::test_invalid_set_rejects_whole_batch
+FAILED src/patrol/test/test_command.py::test_invalid_publish_hz_is_rejected[0.0]
+FAILED src/patrol/test/test_command.py::test_invalid_publish_hz_is_rejected[-5.0]
+FAILED src/patrol/test/test_command.py::test_invalid_publish_hz_is_rejected[0.5]
+FAILED src/patrol/test/test_command.py::test_invalid_publish_hz_is_rejected[30.5]
+========================= 7 failed, 19 passed in 0.39s =========================
+exit=1
