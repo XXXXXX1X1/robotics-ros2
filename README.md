@@ -1,3 +1,60 @@
+# ПР04. Параметры patrol: скорость, поворот, частота
+
+Практика: [условие ПР04](https://ros.lms.ci.nsu.ru/practices/pr04).
+Нода `/patrol` из ПР03 получила параметры `linear_speed` (0.5 м/с),
+`turn_rate` (0.3 рад/с) и `publish_hz` (10.0 Гц). Проверка набора —
+чистая функция `validate_values` в `patrol/command.py`: конечные числа,
+скорость 0–1 м/с, поворот −1–1 рад/с, частота 1–30 Гц. Она вызывается в
+on-set колбэке до изменения состояния; post-set колбэк обновляет поля и при
+смене частоты уничтожает старый таймер и создаёт новый с периодом
+`1/publish_hz`. Команды, вывод, дефект и сервис/действие turtlesim — в
+`evidence/pr04/parameters.md`, тесты — в `evidence/pr04/tests.txt`.
+
+## Сборка и тесты
+
+Среда та же (контейнер `ros2-pr02`, `ROS_DOMAIN_ID=16`):
+
+```bash
+colcon build --symlink-install --packages-select patrol
+source install/setup.bash
+python3 -m pytest src/patrol/test
+```
+
+`test_command.py` проверяет `validate_values` (10→5 Гц, 0, отрицательное,
+NaN, бесконечность, границы), `test_patrol_node.py` — живую ноду: смена
+частоты заменяет таймер, отказ оставляет прежние значение и таймер.
+
+## Запуск
+
+Терминал A — `ros2 launch turtle_bringup sim.launch.py`. Терминал B:
+
+```bash
+ros2 run patrol patrol --ros-args -r cmd_vel:=/turtle1/cmd_vel
+```
+
+Терминал C:
+
+```bash
+ros2 param get /patrol publish_hz
+ros2 param set /patrol publish_hz 5.0
+ros2 param set /patrol publish_hz 0.0
+timeout --signal=INT 10s ros2 topic hz /turtle1/cmd_vel
+```
+
+## Дефект
+
+Ветка `pr04-defect` (в `main` не вливается) отключает проверку частоты:
+`publish_hz 0.0` принимается и нода падает с `ZeroDivisionError` при
+создании таймера. Тот же `test_patrol_node.py` на этой ветке падает.
+
+## Проверка и сдача
+
+Course kit — `v1-w04` (в нём есть манифест PR04). CI собирает пакеты,
+запускает pytest и `colcon test`, затем `check_practice.py PR04`. Проверка
+PR03 из CI убрана: ПР03 сдана коммитом `0df4f5e` и его прогоном CI.
+
+---
+
 # ПР03. Нода patrol: поза и команда
 
 Практика: [условие ПР03](https://ros.lms.ci.nsu.ru/practices/pr03).

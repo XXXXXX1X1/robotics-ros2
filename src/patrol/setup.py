@@ -16,8 +16,8 @@ setup(
     zip_safe=True,
     maintainer='A. Salapanov',
     maintainer_email='a.salapanov@g.nsu.ru',
-    description='Node that stores the latest turtlesim pose and publishes Twist on a timer '
-                '(practice PR03)',
+    description='Node that publishes Twist to turtlesim with validated speed, turn and rate '
+                'parameters (practices PR03-PR04)',
     license='Apache-2.0',
     extras_require={
         'test': [

@@ -1,28 +1,41 @@
-"""Выбор команды скорости по последней позе без зависимостей от ROS."""
+"""Выбор и проверка команды скорости без зависимостей от ROS."""
 
+import math
 from typing import Any
 
-LINEAR_X = 0.5
-ANGULAR_Z = 0.3
-MAX_LINEAR_X = 1.0
-MAX_ANGULAR_Z = 1.0
+MIN_PUBLISH_HZ = 1.0
+MAX_PUBLISH_HZ = 30.0
+MAX_LINEAR_SPEED = 1.0
+MAX_TURN_RATE = 1.0
 
 
-def choose_command(pose: Any | None) -> tuple[float, float]:
+def choose_command(
+    pose: Any | None, linear_speed: float, turn_rate: float
+) -> tuple[float, float]:
     """Вернуть (linear.x, angular.z): ноль до первой позы, иначе движение по дуге."""
     if pose is None:
         return 0.0, 0.0
-    return LINEAR_X, ANGULAR_Z
+    return linear_speed, turn_rate
 
 
-def clamp_command(
-    linear_x: float,
-    angular_z: float,
-    max_linear_x: float = MAX_LINEAR_X,
-    max_angular_z: float = MAX_ANGULAR_Z,
-) -> tuple[float, float]:
-    """Ограничить обе скорости симметричным диапазоном [-max, max]."""
-    return (
-        max(-max_linear_x, min(max_linear_x, linear_x)),
-        max(-max_angular_z, min(max_angular_z, angular_z)),
-    )
+def validate_values(
+    publish_hz: float, linear_speed: float, turn_rate: float
+) -> tuple[bool, str]:
+    """Проверить весь набор параметров; вернуть (допустим ли, причина отказа)."""
+    values = {
+        'publish_hz': publish_hz,
+        'linear_speed': linear_speed,
+        'turn_rate': turn_rate,
+    }
+    for name, value in values.items():
+        if not math.isfinite(value):
+            return False, f'{name} must be a finite number, got {value}'
+    if not MIN_PUBLISH_HZ <= publish_hz <= MAX_PUBLISH_HZ:
+        return False, (f'publish_hz must be in [{MIN_PUBLISH_HZ}, {MAX_PUBLISH_HZ}] Hz, '
+                       f'got {publish_hz}')
+    if not 0.0 <= linear_speed <= MAX_LINEAR_SPEED:
+        return False, f'linear_speed must be in [0, {MAX_LINEAR_SPEED}] m/s, got {linear_speed}'
+    if not -MAX_TURN_RATE <= turn_rate <= MAX_TURN_RATE:
+        return False, (f'turn_rate must be in [{-MAX_TURN_RATE}, {MAX_TURN_RATE}] rad/s, '
+                       f'got {turn_rate}')
+    return True, ''

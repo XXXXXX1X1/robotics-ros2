@@ -1,4 +1,4 @@
-name: PR03 evidence
+name: PR04 evidence
 
 on: [push, pull_request]
 
@@ -42,15 +42,15 @@ jobs:
       - name: Validate report and kit checksum
         shell: bash
         run: |
-          python3 -m json.tool evidence/pr03/report.json > /dev/null
+          python3 -m json.tool evidence/pr04/report.json > /dev/null
           python3 - <<'PYTHON'
           import json
           import os
           from pathlib import Path
-          report = json.loads(Path('evidence/pr03/report.json').read_text())
+          report = json.loads(Path('evidence/pr04/report.json').read_text())
           if report['course_kit']['archive_sha256'] != os.environ['COURSE_KIT_SHA256']:
               raise SystemExit('Course kit SHA-256 in report differs from CI')
           PYTHON
-      - name: Check PR03 evidence and implementation commit
+      - name: Check PR04 evidence and implementation commit
         shell: bash
-        run: python3 .course-kit/v1/tools/check_practice.py PR03 --submission .
+        run: python3 .course-kit/v1/tools/check_practice.py PR04 --submission .
