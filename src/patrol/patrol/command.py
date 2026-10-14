@@ -30,9 +30,7 @@ def validate_values(
     for name, value in values.items():
         if not math.isfinite(value):
             return False, f'{name} must be a finite number, got {value}'
-    if not MIN_PUBLISH_HZ <= publish_hz <= MAX_PUBLISH_HZ:
-        return False, (f'publish_hz must be in [{MIN_PUBLISH_HZ}, {MAX_PUBLISH_HZ}] Hz, '
-                       f'got {publish_hz}')
+    # ДЕФЕКТ ПР04: проверка диапазона publish_hz временно отключена.
     if not 0.0 <= linear_speed <= MAX_LINEAR_SPEED:
         return False, f'linear_speed must be in [0, {MAX_LINEAR_SPEED}] m/s, got {linear_speed}'
     if not -MAX_TURN_RATE <= turn_rate <= MAX_TURN_RATE:
