@@ -1,0 +1,32 @@
+[INFO] [launch]: All log files can be found below /home/ubuntu/.ros/log/2026-10-19-15-04-47-541149-f3fcf94a7005-21321
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [turtlesim_node-1]: process started with pid [21334]
+[INFO] [patrol-2]: process started with pid [21335]
+[INFO] [pose_relay-3]: process started with pid [21336]
+[INFO] [pose_listener-4]: process started with pid [21337]
+[turtlesim_node-1] [INFO] [1792422287.676631334] [turtlesim]: Starting turtlesim with node name /turtlesim
+[turtlesim_node-1] [INFO] [1792422287.685040292] [turtlesim]: Spawning turtle [turtle1] at x=[5.544445], y=[5.544445], theta=[0.000000]
+[pose_listener-4] [WARN] [1792422288.190612292] [robot_a.pose_listener]: New publisher discovered on topic 'sensor_pose', offering incompatible QoS. No messages will be received from it. Last incompatible policy: RELIABILITY
+[pose_relay-3] [WARN] [1792422288.529061001] [robot_a.pose_relay]: New subscription discovered on topic 'sensor_pose', requesting incompatible QoS. No messages will be sent to it. Last incompatible policy: RELIABILITY
+[pose_listener-4] [INFO] [1792422289.070809918] [robot_a.pose_listener]: reliability=reliable received=0
+[pose_listener-4] [INFO] [1792422290.069917793] [robot_a.pose_listener]: reliability=reliable received=0
+[pose_listener-4] [INFO] [1792422291.069483502] [robot_a.pose_listener]: reliability=reliable received=0
+[pose_listener-4] [INFO] [1792422292.068729253] [robot_a.pose_listener]: reliability=reliable received=0
+[pose_listener-4] [INFO] [1792422293.068906795] [robot_a.pose_listener]: reliability=reliable received=0
+[pose_listener-4] [INFO] [1792422294.069093379] [robot_a.pose_listener]: reliability=reliable received=0
+[pose_listener-4] [INFO] [1792422295.070578796] [robot_a.pose_listener]: reliability=reliable received=0
+[pose_relay-3] [WARN] [1792422295.333285671] [robot_a.pose_relay]: New subscription discovered on topic 'sensor_pose', requesting incompatible QoS. No messages will be sent to it. Last incompatible policy: RELIABILITY
+[pose_listener-4] [INFO] [1792422296.070024130] [robot_a.pose_listener]: reliability=reliable received=0
+[pose_listener-4] [INFO] [1792422297.069952505] [robot_a.pose_listener]: reliability=reliable received=0
+[pose_listener-4] [INFO] [1792422298.069132672] [robot_a.pose_listener]: reliability=reliable received=0
+[pose_listener-4] [INFO] [1792422299.070005714] [robot_a.pose_listener]: reliability=reliable received=0
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[INFO] [pose_listener-4]: sending signal 'SIGINT' to process[pose_listener-4]
+[INFO] [pose_relay-3]: sending signal 'SIGINT' to process[pose_relay-3]
+[INFO] [patrol-2]: sending signal 'SIGINT' to process[patrol-2]
+[INFO] [turtlesim_node-1]: sending signal 'SIGINT' to process[turtlesim_node-1]
+[turtlesim_node-1] [INFO] [1792422299.628669465] [rclcpp]: signal_handler(signum=2)
+[ERROR] [turtlesim_node-1]: process has died [pid 21334, exit code -2, cmd '/opt/ros/lyrical/lib/turtlesim/turtlesim_node --ros-args'].
+[INFO] [patrol-2]: process has finished cleanly [pid 21335]
+[INFO] [pose_listener-4]: process has finished cleanly [pid 21337]
+[INFO] [pose_relay-3]: process has finished cleanly [pid 21336]

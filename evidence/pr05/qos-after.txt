@@ -1,0 +1,199 @@
+# ПР05, после исправления: подписчик best_effort, запись MCAP из launch
+
+$ ros2 daemon stop; ros2 daemon start
+The daemon has been stopped
+The daemon has been started
+exit=0
+
+$ ros2 launch course_bringup patrol.launch.py namespace:=robot_a subscriber_reliability:=best_effort record:=true bag_dir:=evidence/pr05/bag > evidence/pr05/launch-after.log 2>&1 &   # терминал 1
+
+$ ros2 node list
+/robot_a/patrol
+/robot_a/pose_listener
+/robot_a/pose_relay
+/rosbag2_recorder
+/turtlesim
+exit=0
+
+$ ros2 topic info --verbose /robot_a/sensor_pose
+Type: turtlesim_msgs/msg/Pose
+
+Publisher count: 1
+
+Node name: pose_relay
+Node namespace: /robot_a
+Topic type: turtlesim_msgs/msg/Pose
+Topic type hash: RIHS01_37b07ace09a0ed2c5b774b1410dec972dfd1d292de5656ebc2b075ac646e09c8
+Endpoint type: PUBLISHER
+GID: 01.0f.eb.7d.56.54.29.34.00.00.00.00.00.00.13.03
+QoS profile:
+  Reliability: BEST_EFFORT
+  History (Depth): KEEP_LAST (10)
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+Subscription count: 2
+
+Node name: pose_listener
+Node namespace: /robot_a
+Topic type: turtlesim_msgs/msg/Pose
+Topic type hash: RIHS01_37b07ace09a0ed2c5b774b1410dec972dfd1d292de5656ebc2b075ac646e09c8
+Endpoint type: SUBSCRIPTION
+GID: 01.0f.eb.7d.57.54.86.c4.00.00.00.00.00.00.13.04
+QoS profile:
+  Reliability: BEST_EFFORT
+  History (Depth): KEEP_LAST (10)
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+Node name: rosbag2_recorder
+Node namespace: /
+Topic type: turtlesim_msgs/msg/Pose
+Topic type hash: RIHS01_37b07ace09a0ed2c5b774b1410dec972dfd1d292de5656ebc2b075ac646e09c8
+Endpoint type: SUBSCRIPTION
+GID: 01.0f.eb.7d.58.54.be.a1.00.00.00.00.00.00.26.04
+QoS profile:
+  Reliability: BEST_EFFORT
+  History (Depth): KEEP_LAST (10)
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+exit=0
+
+$ timeout 3s ros2 topic echo /robot_a/sensor_pose --qos-reliability best_effort --once
+x: 7.1378984451293945
+y: 7.6864237785339355
+theta: 1.8575999736785889
+linear_velocity: 0.5
+angular_velocity: 0.30000001192092896
+---
+exit=0
+
+# Ctrl+C в терминале 1 (launch вместе с recorder)
+exit=0
+
+$ grep -E "pose_listener|incompatible|rosbag2|process has" evidence/pr05/launch-after.log
+[INFO] [pose_listener-4]: process started with pid [21591]
+[ros2-5] stdin is not a terminal device. Keyboard handling disabled.[INFO] [1792422302.364637091] [rosbag2_recorder]: Press SPACE for pausing/resuming
+[ros2-5] [INFO] [1792422302.364979924] [rosbag2_recorder]: Event publisher thread: Started
+[ros2-5] [INFO] [1792422302.372813799] [rosbag2_recorder]: Starting recording to 'evidence/pr05/bag'
+[ros2-5] [WARN] [1792422302.372870049] [rosbag2_recorder]: No input serialization format specified, using default rmw serialization format: 'cdr'.
+[ros2-5] [INFO] [1792422302.377385758] [rosbag2_recorder]: Listening for topics...
+[ros2-5] [INFO] [1792422302.377457883] [rosbag2_recorder]: Recording...
+[ros2-5] [INFO] [1792422302.377434424] [rosbag2_recorder]: Topics discovery started.
+[ros2-5] [INFO] [1792422302.471763049] [rosbag2_recorder]: Subscribed to topic '/robot_a/sensor_pose'
+[ros2-5] [INFO] [1792422302.471808174] [rosbag2_recorder]: All requested topics are subscribed. Stopping discovery...
+[ros2-5] [INFO] [1792422302.471817424] [rosbag2_recorder]: Topics discovery stopped.
+[pose_listener-4] [INFO] [1792422302.952136049] [robot_a.pose_listener]: reliability=best_effort received=47
+[pose_listener-4] [INFO] [1792422303.943956800] [robot_a.pose_listener]: reliability=best_effort received=110
+[pose_listener-4] [INFO] [1792422304.943578675] [robot_a.pose_listener]: reliability=best_effort received=172
+[pose_listener-4] [INFO] [1792422305.943664051] [robot_a.pose_listener]: reliability=best_effort received=235
+[pose_listener-4] [INFO] [1792422306.941889718] [robot_a.pose_listener]: reliability=best_effort received=297
+[pose_listener-4] [INFO] [1792422307.946321635] [robot_a.pose_listener]: reliability=best_effort received=359
+[pose_listener-4] [INFO] [1792422308.941037261] [robot_a.pose_listener]: reliability=best_effort received=421
+[pose_listener-4] [INFO] [1792422309.941939594] [robot_a.pose_listener]: reliability=best_effort received=484
+[pose_listener-4] [INFO] [1792422310.942782303] [robot_a.pose_listener]: reliability=best_effort received=546
+[pose_listener-4] [INFO] [1792422311.941936054] [robot_a.pose_listener]: reliability=best_effort received=609
+[pose_listener-4] [INFO] [1792422312.943312221] [robot_a.pose_listener]: reliability=best_effort received=671
+[pose_listener-4] [INFO] [1792422313.942562388] [robot_a.pose_listener]: reliability=best_effort received=734
+[pose_listener-4] [INFO] [1792422314.942177680] [robot_a.pose_listener]: reliability=best_effort received=796
+[pose_listener-4] [INFO] [1792422315.941365291] [robot_a.pose_listener]: reliability=best_effort received=859
+[pose_listener-4] [INFO] [1792422316.942721250] [robot_a.pose_listener]: reliability=best_effort received=921
+[pose_listener-4] [INFO] [1792422317.941163501] [robot_a.pose_listener]: reliability=best_effort received=984
+[pose_listener-4] [INFO] [1792422318.941397668] [robot_a.pose_listener]: reliability=best_effort received=1046
+[INFO] [pose_listener-4]: sending signal 'SIGINT' to process[pose_listener-4]
+[ros2-5] [INFO] [1792422319.015564626] [rosbag2_cpp]: Writing remaining messages from cache to the bag. It may take a while
+[ERROR] [turtlesim_node-1]: process has died [pid 21588, exit code -2, cmd '/opt/ros/lyrical/lib/turtlesim/turtlesim_node --ros-args'].
+[ros2-5] [INFO] [1792422319.041191543] [rosbag2_recorder]: Recording stopped
+[ros2-5] [INFO] [1792422319.044466209] [rosbag2_recorder]: Event publisher thread: Exited
+[INFO] [patrol-2]: process has finished cleanly [pid 21589]
+[INFO] [pose_listener-4]: process has finished cleanly [pid 21591]
+[INFO] [pose_relay-3]: process has finished cleanly [pid 21590]
+[ERROR] [ros2-5]: process has died [pid 21592, exit code 2, cmd 'ros2 bag record -s mcap -o evidence/pr05/bag --topics /robot_a/sensor_pose'].
+exit=0
+
+# Повтор записи: живая система остановлена, проигрывается та же запись
+
+$ ros2 daemon stop; ros2 daemon start
+The daemon has been stopped
+The daemon has been started
+exit=0
+
+$ ros2 node list
+exit=0
+
+$ ros2 bag play evidence/pr05/bag --qos-profile-overrides-path config/qos-overrides.yaml > evidence/pr05/bag-play.log 2>&1 &   # терминал 1
+
+$ ros2 node list
+/rosbag2_player
+exit=0
+
+$ ros2 topic info --verbose /robot_a/sensor_pose
+Type: turtlesim_msgs/msg/Pose
+
+Publisher count: 1
+
+Node name: rosbag2_player
+Node namespace: /
+Topic type: turtlesim_msgs/msg/Pose
+Topic type hash: RIHS01_37b07ace09a0ed2c5b774b1410dec972dfd1d292de5656ebc2b075ac646e09c8
+Endpoint type: PUBLISHER
+GID: 01.0f.eb.7d.66.55.e5.20.00.00.00.00.00.00.13.03
+QoS profile:
+  Reliability: BEST_EFFORT
+  History (Depth): KEEP_LAST (10)
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+Subscription count: 0
+
+exit=0
+
+# терминал 2: оба echo на одном проигрывании
+
+$ timeout 3s ros2 topic echo /robot_a/sensor_pose --qos-reliability reliable --once
+[WARN] [1792422324.772698671] [_ros2cli_21919]: New publisher discovered on topic '/robot_a/sensor_pose', offering incompatible QoS. No messages will be received from it. Last incompatible policy: RELIABILITY
+!rclpy.ok()
+exit=124
+
+$ timeout 3s ros2 topic echo /robot_a/sensor_pose --qos-reliability best_effort --once
+x: 7.042923927307129
+y: 7.932453155517578
+theta: 2.0160000324249268
+linear_velocity: 0.5
+angular_velocity: 0.30000001192092896
+---
+exit=0
+
+# ros2 bag play доиграл запись
+exit=0
+
+$ ros2 bag info evidence/pr05/bag
+
+Files:             0_bag_2026_10_19-15_05_02.mcap
+Bag size:          76.4 KiB
+Storage id:        mcap
+ROS Distro:        lyrical
+Duration:          16.532359868s
+Start:             Oct 19 2026 15:05:02.476597133 (1792422302.476597133)
+End:               Oct 19 2026 15:05:19.008957001 (1792422319.008957001)
+Messages:          1033
+Topic information: Topic: /robot_a/sensor_pose | Type: turtlesim_msgs/msg/Pose | Count: 1033 | Serialization Format: cdr
+Services:          0
+Service information: 
+Actions:           0
+Action information: 
+exit=0
+

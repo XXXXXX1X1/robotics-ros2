@@ -1,0 +1,95 @@
+# ПР05, до исправления: подписчик reliable на поток best_effort
+
+$ ros2 daemon stop; ros2 daemon start
+The daemon has been stopped
+The daemon has been started
+exit=0
+
+$ ros2 launch course_bringup patrol.launch.py namespace:=robot_a subscriber_reliability:=reliable record:=false > evidence/pr05/launch-before.log 2>&1 &   # терминал 1
+
+$ ros2 node list
+/robot_a/patrol
+/robot_a/pose_listener
+/robot_a/pose_relay
+/turtlesim
+exit=0
+
+$ ros2 topic list
+/parameter_events
+/robot_a/sensor_pose
+/rosout
+/turtle1/cmd_vel
+/turtle1/color_sensor
+/turtle1/pose
+exit=0
+
+$ ros2 topic info --verbose /robot_a/sensor_pose
+Type: turtlesim_msgs/msg/Pose
+
+Publisher count: 1
+
+Node name: pose_relay
+Node namespace: /robot_a
+Topic type: turtlesim_msgs/msg/Pose
+Topic type hash: RIHS01_37b07ace09a0ed2c5b774b1410dec972dfd1d292de5656ebc2b075ac646e09c8
+Endpoint type: PUBLISHER
+GID: 01.0f.eb.7d.58.53.23.ac.00.00.00.00.00.00.13.03
+QoS profile:
+  Reliability: BEST_EFFORT
+  History (Depth): KEEP_LAST (10)
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+Subscription count: 1
+
+Node name: pose_listener
+Node namespace: /robot_a
+Topic type: turtlesim_msgs/msg/Pose
+Topic type hash: RIHS01_37b07ace09a0ed2c5b774b1410dec972dfd1d292de5656ebc2b075ac646e09c8
+Endpoint type: SUBSCRIPTION
+GID: 01.0f.eb.7d.59.53.e4.15.00.00.00.00.00.00.13.04
+QoS profile:
+  Reliability: RELIABLE
+  History (Depth): KEEP_LAST (10)
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+exit=0
+
+$ timeout 3s ros2 topic echo /robot_a/sensor_pose --qos-reliability reliable --once
+[WARN] [1792422295.344153379] [_ros2cli_21488]: New publisher discovered on topic '/robot_a/sensor_pose', offering incompatible QoS. No messages will be received from it. Last incompatible policy: RELIABILITY
+!rclpy.ok()
+exit=124
+
+# Ctrl+C в терминале 1 (launch)
+exit=0
+
+$ grep -E "pose_listener|incompatible|process has" evidence/pr05/launch-before.log
+[INFO] [pose_listener-4]: process started with pid [21337]
+[pose_listener-4] [WARN] [1792422288.190612292] [robot_a.pose_listener]: New publisher discovered on topic 'sensor_pose', offering incompatible QoS. No messages will be received from it. Last incompatible policy: RELIABILITY
+[pose_relay-3] [WARN] [1792422288.529061001] [robot_a.pose_relay]: New subscription discovered on topic 'sensor_pose', requesting incompatible QoS. No messages will be sent to it. Last incompatible policy: RELIABILITY
+[pose_listener-4] [INFO] [1792422289.070809918] [robot_a.pose_listener]: reliability=reliable received=0
+[pose_listener-4] [INFO] [1792422290.069917793] [robot_a.pose_listener]: reliability=reliable received=0
+[pose_listener-4] [INFO] [1792422291.069483502] [robot_a.pose_listener]: reliability=reliable received=0
+[pose_listener-4] [INFO] [1792422292.068729253] [robot_a.pose_listener]: reliability=reliable received=0
+[pose_listener-4] [INFO] [1792422293.068906795] [robot_a.pose_listener]: reliability=reliable received=0
+[pose_listener-4] [INFO] [1792422294.069093379] [robot_a.pose_listener]: reliability=reliable received=0
+[pose_listener-4] [INFO] [1792422295.070578796] [robot_a.pose_listener]: reliability=reliable received=0
+[pose_relay-3] [WARN] [1792422295.333285671] [robot_a.pose_relay]: New subscription discovered on topic 'sensor_pose', requesting incompatible QoS. No messages will be sent to it. Last incompatible policy: RELIABILITY
+[pose_listener-4] [INFO] [1792422296.070024130] [robot_a.pose_listener]: reliability=reliable received=0
+[pose_listener-4] [INFO] [1792422297.069952505] [robot_a.pose_listener]: reliability=reliable received=0
+[pose_listener-4] [INFO] [1792422298.069132672] [robot_a.pose_listener]: reliability=reliable received=0
+[pose_listener-4] [INFO] [1792422299.070005714] [robot_a.pose_listener]: reliability=reliable received=0
+[INFO] [pose_listener-4]: sending signal 'SIGINT' to process[pose_listener-4]
+[ERROR] [turtlesim_node-1]: process has died [pid 21334, exit code -2, cmd '/opt/ros/lyrical/lib/turtlesim/turtlesim_node --ros-args'].
+[INFO] [patrol-2]: process has finished cleanly [pid 21335]
+[INFO] [pose_listener-4]: process has finished cleanly [pid 21337]
+[INFO] [pose_relay-3]: process has finished cleanly [pid 21336]
+exit=0
+

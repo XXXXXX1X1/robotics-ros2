@@ -1,0 +1,232 @@
+stdin is not a terminal device. Keyboard handling disabled.[INFO] [1792422321.327307377] [rosbag2_player]: Set rate to 1
+[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422302.476597309] Duration 0.00/16.53 [R]
+[4A[INFO] [1792422321.327766919] [rosbag2_player]: Overriding QoS profile for topic /robot_a/sensor_pose
+[INFO] [1792422321.333590586] [rosbag2_player]: Adding keyboard callbacks.
+[INFO] [1792422321.333808502] [rosbag2_player]: Press SPACE for Pause/Resume
+[INFO] [1792422321.333894669] [rosbag2_player]: Press CURSOR_RIGHT for Play Next Message
+[INFO] [1792422321.333981127] [rosbag2_player]: Press CURSOR_UP for Increase Rate 10%
+[INFO] [1792422321.334072669] [rosbag2_player]: Press CURSOR_DOWN for Decrease Rate 10%
+Progress bar enabled at 3 Hz.
+Progress bar [?]: [R]unning, [P]aused, [B]urst, [D]elayed, [S]topped
+[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422302.476597309] Duration 0.00/16.53 [S]
+[4A[INFO] [1792422321.336353294] [rosbag2_player]: Playback until timestamp: -1
+[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422302.476597309] Duration 0.00/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422302.476597309] Duration 0.00/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422302.813573599] Duration 0.34/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422303.151769638] Duration 0.68/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422303.485519648] Duration 1.01/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422303.823535681] Duration 1.35/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422304.156443119] Duration 1.68/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422304.496550083] Duration 2.02/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422304.847921610] Duration 2.37/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422305.183550119] Duration 2.71/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422305.519443750] Duration 3.04/16.53 [R]
+[4A[WARN] [1792422324.760334129] [rosbag2_player]: New subscription discovered on topic '/robot_a/sensor_pose', requesting incompatible QoS. No messages will be sent to it. Last incompatible policy: RELIABILITY_QOS_POLICY
+[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422305.853922367] Duration 3.38/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422306.190720320] Duration 3.71/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422306.525426388] Duration 4.05/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422306.860751152] Duration 4.38/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422307.206165075] Duration 4.73/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422307.551461220] Duration 5.07/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422307.888633251] Duration 5.41/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422308.224380016] Duration 5.75/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422308.575440407] Duration 6.10/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422308.912673712] Duration 6.44/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422309.249800920] Duration 6.77/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422309.598993778] Duration 7.12/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422309.935542107] Duration 7.46/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422310.273652315] Duration 7.80/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422310.621372461] Duration 8.14/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422310.958349228] Duration 8.48/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422311.294305325] Duration 8.82/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422311.629458189] Duration 9.15/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422311.967656851] Duration 9.49/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422312.302332878] Duration 9.83/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422312.637749910] Duration 10.16/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422312.974629402] Duration 10.50/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422313.312639952] Duration 10.84/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422313.647757292] Duration 11.17/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422313.984249592] Duration 11.51/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422314.320920467] Duration 11.84/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422314.658010960] Duration 12.18/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422314.992806196] Duration 12.52/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422315.329420090] Duration 12.85/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422315.681812525] Duration 13.21/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422316.018065691] Duration 13.54/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422316.352084875] Duration 13.88/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422316.688951254] Duration 14.21/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422317.022696495] Duration 14.55/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422317.358014345] Duration 14.88/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422317.694852829] Duration 15.22/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422318.032152891] Duration 15.56/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422318.367989540] Duration 15.89/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422318.702611208] Duration 16.23/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422318.702611208] Duration 16.23/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422318.702611208] Duration 16.23/16.53 [R]
+[4A[2K
+[2K
+[2K====== Playback Progress ======
+[2K[1792422318.702611208] Duration 16.23/16.53 [R]
+[4A[4B

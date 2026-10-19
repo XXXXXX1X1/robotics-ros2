@@ -1,0 +1,86 @@
+$ python3 -m pytest -v -p no:cacheprovider src/patrol/test
+============================= test session starts ==============================
+platform linux -- Python 3.14.4, pytest-9.0.2, pluggy-1.6.0 -- /usr/bin/python3
+rootdir: /home/ubuntu/ros2_ws/src/patrol
+plugins: ament_xmllint-0.20.6, launch_testing_ros-0.29.9, launch_testing-3.9.8, ament_copyright-0.20.6, ament_lint-0.20.6, ament_flake8-0.20.6, ament_mypy-0.20.6, ament_pep257-0.20.6, typeguard-4.4.4, cov-5.0.0, colcon-core-0.21.1
+collecting ... collected 43 items
+
+src/patrol/test/test_command.py::test_no_pose_gives_zero_command PASSED  [  2%]
+src/patrol/test/test_command.py::test_pose_gives_parameter_command PASSED [  4%]
+src/patrol/test/test_command.py::test_command_does_not_depend_on_pose_values PASSED [  6%]
+src/patrol/test/test_command.py::test_defaults_and_change_to_5_hz_are_valid PASSED [  9%]
+src/patrol/test/test_command.py::test_invalid_publish_hz_is_rejected[0.0] PASSED [ 11%]
+src/patrol/test/test_command.py::test_invalid_publish_hz_is_rejected[-5.0] PASSED [ 13%]
+src/patrol/test/test_command.py::test_invalid_publish_hz_is_rejected[nan] PASSED [ 16%]
+src/patrol/test/test_command.py::test_invalid_publish_hz_is_rejected[inf] PASSED [ 18%]
+src/patrol/test/test_command.py::test_invalid_publish_hz_is_rejected[0.5] PASSED [ 20%]
+src/patrol/test/test_command.py::test_invalid_publish_hz_is_rejected[30.5] PASSED [ 23%]
+src/patrol/test/test_command.py::test_publish_hz_bounds_are_valid[1.0] PASSED [ 25%]
+src/patrol/test/test_command.py::test_publish_hz_bounds_are_valid[30.0] PASSED [ 27%]
+src/patrol/test/test_command.py::test_invalid_linear_speed_is_rejected[-0.1] PASSED [ 30%]
+src/patrol/test/test_command.py::test_invalid_linear_speed_is_rejected[1.1] PASSED [ 32%]
+src/patrol/test/test_command.py::test_invalid_linear_speed_is_rejected[nan] PASSED [ 34%]
+src/patrol/test/test_command.py::test_invalid_turn_rate_is_rejected[-1.1] PASSED [ 37%]
+src/patrol/test/test_command.py::test_invalid_turn_rate_is_rejected[1.1] PASSED [ 39%]
+src/patrol/test/test_command.py::test_invalid_turn_rate_is_rejected[-inf] PASSED [ 41%]
+src/patrol/test/test_command.py::test_speed_and_turn_bounds_are_valid PASSED [ 44%]
+src/patrol/test/test_copyright.py::test_copyright SKIPPED (No copyri...) [ 46%]
+src/patrol/test/test_flake8.py::test_flake8 PASSED                       [ 48%]
+src/patrol/test/test_mypy.py::test_mypy PASSED                           [ 51%]
+src/patrol/test/test_patrol_node.py::test_defaults_give_10_hz_timer PASSED [ 53%]
+src/patrol/test/test_patrol_node.py::test_valid_rate_replaces_timer PASSED [ 55%]
+src/patrol/test/test_patrol_node.py::test_invalid_rate_keeps_value_and_timer[0.0] PASSED [ 58%]
+src/patrol/test/test_patrol_node.py::test_invalid_rate_keeps_value_and_timer[-1.0] PASSED [ 60%]
+src/patrol/test/test_patrol_node.py::test_invalid_rate_keeps_value_and_timer[nan] PASSED [ 62%]
+src/patrol/test/test_patrol_node.py::test_speed_change_keeps_timer PASSED [ 65%]
+src/patrol/test/test_patrol_node.py::test_invalid_set_rejects_whole_batch PASSED [ 67%]
+src/patrol/test/test_pep257.py::test_pep257 PASSED                       [ 69%]
+src/patrol/test/test_pose_relay.py::test_relay_publishes_best_effort[best_effort] PASSED [ 72%]
+src/patrol/test/test_pose_relay.py::test_best_effort_listener_receives[best_effort] PASSED [ 74%]
+src/patrol/test/test_pose_relay.py::test_reliable_listener_sees_topic_but_gets_nothing[reliable] PASSED [ 76%]
+src/patrol/test/test_qos.py::test_sensor_qos_sets_reliability[reliable-1] PASSED [ 79%]
+src/patrol/test/test_qos.py::test_sensor_qos_sets_reliability[best_effort-2] PASSED [ 81%]
+src/patrol/test/test_qos.py::test_unknown_reliability_is_rejected[] PASSED [ 83%]
+src/patrol/test/test_qos.py::test_unknown_reliability_is_rejected[Reliable] PASSED [ 86%]
+src/patrol/test/test_qos.py::test_unknown_reliability_is_rejected[best-effort] PASSED [ 88%]
+src/patrol/test/test_qos.py::test_unknown_reliability_is_rejected[system_default] PASSED [ 90%]
+src/patrol/test/test_runner.py::test_sigint_ignored_before_rclpy_init PASSED [ 93%]
+src/patrol/test/test_runner.py::test_rcl_error_after_shutdown_is_quiet PASSED [ 95%]
+src/patrol/test/test_runner.py::test_rcl_error_with_live_context_propagates PASSED [ 97%]
+src/patrol/test/test_xmllint.py::test_xmllint PASSED                     [100%]
+
+======================== 42 passed, 1 skipped in 9.73s =========================
+exit=0
+
+$ python3 -m pytest -v -p no:cacheprovider src/course_bringup/test
+============================= test session starts ==============================
+platform linux -- Python 3.14.4, pytest-9.0.2, pluggy-1.6.0 -- /usr/bin/python3
+rootdir: /home/ubuntu/ros2_ws/src/course_bringup
+plugins: ament_xmllint-0.20.6, launch_testing_ros-0.29.9, launch_testing-3.9.8, ament_copyright-0.20.6, ament_lint-0.20.6, ament_flake8-0.20.6, ament_mypy-0.20.6, ament_pep257-0.20.6, typeguard-4.4.4, cov-5.0.0, colcon-core-0.21.1
+collecting ... collected 8 items
+
+src/course_bringup/test/test_copyright.py::test_copyright SKIPPED (N...) [ 12%]
+src/course_bringup/test/test_flake8.py::test_flake8 PASSED               [ 25%]
+src/course_bringup/test/test_launch.py::test_declares_required_arguments PASSED [ 37%]
+src/course_bringup/test/test_launch.py::test_recorder_is_conditional PASSED [ 50%]
+src/course_bringup/test/test_launch.py::test_starts_patrol_relay_and_listener PASSED [ 62%]
+src/course_bringup/test/test_mypy.py::test_mypy PASSED                   [ 75%]
+src/course_bringup/test/test_pep257.py::test_pep257 PASSED               [ 87%]
+src/course_bringup/test/test_xmllint.py::test_xmllint PASSED             [100%]
+
+========================= 7 passed, 1 skipped in 7.11s =========================
+exit=0
+
+$ colcon test --packages-select patrol course_bringup
+Starting >>> patrol
+Finished <<< patrol [16.2s]
+Starting >>> course_bringup
+Finished <<< course_bringup [10.8s]
+
+Summary: 2 packages finished [27.2s]
+exit=0
+
+$ colcon test-result --verbose
+Summary: 56 tests, 0 errors, 0 failures, 3 skipped
+exit=0
+

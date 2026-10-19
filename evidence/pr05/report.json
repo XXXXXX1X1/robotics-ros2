@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "practice_id": "PR05",
+  "commit": "37be3dba06d59abce08f2d501207683059edb064",
+  "course_kit": {
+    "version": "v1-w07",
+    "archive_sha256": "001f7ec79674d09a0f7eff2ad0935f58c95101b0cf200425c368f41579d6a31c"
+  },
+  "environment": {
+    "os": "Ubuntu 26.04.1 LTS (container)",
+    "ros_distro": "lyrical",
+    "python": "3.14.4",
+    "docker_image": "tiryoh/ros2-desktop-vnc:lyrical-20260906T0836",
+    "ros_domain_id": 16
+  },
+  "commands": [
+    "source /opt/ros/lyrical/setup.bash",
+    "export DISPLAY=:1 XAUTHORITY=/home/ubuntu/.Xauthority ROS_DOMAIN_ID=16",
+    "colcon build --symlink-install --packages-select turtle_bringup patrol course_bringup",
+    "source install/setup.bash",
+    "python3 -m pytest -v src/patrol/test",
+    "python3 -m pytest -v src/course_bringup/test",
+    "colcon test --packages-select patrol course_bringup",
+    "colcon test-result --verbose",
+    "ros2 launch course_bringup patrol.launch.py namespace:=robot_a subscriber_reliability:=reliable record:=false",
+    "ros2 node list",
+    "ros2 topic list",
+    "ros2 topic info --verbose /robot_a/sensor_pose",
+    "timeout 3s ros2 topic echo /robot_a/sensor_pose --qos-reliability reliable --once",
+    "ros2 launch course_bringup patrol.launch.py namespace:=robot_a subscriber_reliability:=best_effort record:=true bag_dir:=evidence/pr05/bag",
+    "timeout 3s ros2 topic echo /robot_a/sensor_pose --qos-reliability best_effort --once",
+    "ros2 bag play evidence/pr05/bag --qos-profile-overrides-path config/qos-overrides.yaml",
+    "ros2 bag info evidence/pr05/bag",
+    "cp evidence/pr05/bag/metadata.yaml evidence/pr05/bag-metadata.yaml",
+    "python3 .course-kit/v1/tools/check_practice.py PR05 --submission ."
+  ],
+  "tests": [
+    {
+      "name": "pytest patrol: QoS-профили, relay публикует best_effort, best_effort-подписчик получает поток, reliable видит издателя и получает 0, run_node при остановке, параметры ПР04, линтеры — 42 passed, 1 skipped",
+      "status": "passed",
+      "evidence": "tests.txt"
+    },
+    {
+      "name": "pytest course_bringup: четыре аргумента launch, recorder под IfCondition, ноды patrol/pose_relay/pose_listener, линтеры — 7 passed, 1 skipped",
+      "status": "passed",
+      "evidence": "tests.txt"
+    },
+    {
+      "name": "colcon test: 56 tests, 0 errors, 0 failures, 3 skipped",
+      "status": "passed",
+      "evidence": "tests.txt"
+    },
+    {
+      "name": "До правки: ноды в /robot_a, издатель BEST_EFFORT, подписчик RELIABLE; echo reliable — timeout (124), listener received=0, предупреждения incompatible QoS: RELIABILITY",
+      "status": "passed",
+      "evidence": "qos-before.txt, launch-before.log"
+    },
+    {
+      "name": "После правки: echo best_effort получает Pose, listener received=1046; recorder записал 1033 сообщения одного топика /robot_a/sensor_pose",
+      "status": "passed",
+      "evidence": "qos-after.txt, launch-after.log, bag-metadata.yaml"
+    },
+    {
+      "name": "Replay той же записи с config/qos-overrides.yaml при остановленной системе: в графе только /rosbag2_player (BEST_EFFORT); echo reliable — timeout (124), echo best_effort — Pose",
+      "status": "passed",
+      "evidence": "qos-after.txt, bag-play.log"
+    },
+    {
+      "name": "Ctrl+C (SIGINT на группу launch) в обоих запусках: patrol, pose_relay, pose_listener — process has finished cleanly",
+      "status": "passed",
+      "evidence": "launch-before.log, launch-after.log"
+    }
+  ],
+  "defect": {
+    "reproducer": "ros2 launch course_bringup patrol.launch.py namespace:=robot_a subscriber_reliability:=reliable record:=false. pose_relay публикует /robot_a/sensor_pose с best_effort, pose_listener подписан с reliable. Топик есть в ros2 topic list, ros2 topic info --verbose показывает Publisher count 1 (BEST_EFFORT) и Subscription count 1 (RELIABLE), но listener пишет received=0 весь запуск, а обе ноды предупреждают: incompatible QoS, Last incompatible policy: RELIABILITY. timeout 3s ros2 topic echo /robot_a/sensor_pose --qos-reliability reliable --once завершается по таймауту, код 124.",
+    "root_cause": "Профили сопоставляются по принципу «запрошено не больше, чем предложено». Подписчик reliable требует подтверждения доставки, а издатель best_effort его не даёт, поэтому DDS не создаёт соединение. Совпадение имени и типа топика не гарантирует доставку: граф показывает обе стороны, но данные не идут. У ros2 bag play издатель по умолчанию получает профиль из записи; override явно задаёт тот же best_effort keep_last 10.",
+    "proof_after": "subscriber_reliability:=best_effort: подписчик BEST_EFFORT, echo best_effort --once получает Pose (exit 0), listener received=1046. Записан один поток /robot_a/sensor_pose, 1033 сообщения, offered_qos best_effort. Живая система остановлена, та же запись проиграна с --qos-profile-overrides-path config/qos-overrides.yaml: echo reliable — timeout (124), echo best_effort — Pose (exit 0). test_pose_relay.py проверяет то же в одном процессе."
+  },
+  "claims": {
+    "public_tests_passed": true,
+    "defect_reproduced": true,
+    "defect_fixed": true,
+    "replay_verified": true
+  },
+  "time": {
+    "contact_academic_hours": 2,
+    "self_study_hours": 2
+  },
+  "ai_used": true
+}
