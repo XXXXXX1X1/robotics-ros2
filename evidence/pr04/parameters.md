@@ -4,7 +4,9 @@
 контейнере `tiryoh/ros2-desktop-vnc:lyrical-20260906T0836`, `ROS_DOMAIN_ID=16`.
 turtlesim — `ros2 launch turtle_bringup sim.launch.py`, нода —
 `ros2 run patrol patrol --ros-args -r cmd_vel:=/turtle1/cmd_vel`.
-Полные выводы лежат рядом с этим файлом.
+Полные выводы лежат рядом с этим файлом. В блоках ниже строки вывода
+дословные; строки `exit=` из файлов оставлены только там, где код
+важен для вывода, пропуск внутри вывода отмечен `[…]` с числом строк.
 
 ## Как устроено
 
@@ -44,6 +46,7 @@ $ ros2 param list /patrol
 $ ros2 param get /patrol publish_hz
 Double value is: 10.0
 $ timeout --signal=INT 10s ros2 topic hz /turtle1/cmd_vel
+[… 16 строк промежуточных замеров]
 average rate: 9.998
 	min: 0.096s max: 0.103s std dev: 0.00183s window: 89
 ```
@@ -60,6 +63,7 @@ Set parameter successful
 $ ros2 param get /patrol publish_hz
 Double value is: 5.0
 $ timeout --signal=INT 10s ros2 topic hz /turtle1/cmd_vel
+[… 16 строк промежуточных замеров]
 average rate: 5.000
 	min: 0.181s max: 0.222s std dev: 0.00465s window: 44
 ```
@@ -89,6 +93,7 @@ $ ros2 node list --no-daemon --spin-time 3
 /patrol
 /turtlesim
 $ timeout --signal=INT 10s ros2 topic hz /turtle1/cmd_vel
+[… 14 строк промежуточных замеров]
 average rate: 5.000
 	min: 0.195s max: 0.205s std dev: 0.00222s window: 40
 ```
@@ -104,9 +109,16 @@ $ ros2 param set /patrol linear_speed 1.0
 Set parameter successful
 $ ros2 param set /patrol turn_rate -0.6
 Set parameter successful
-$ ros2 topic echo /turtle1/cmd_vel --once
-linear:  x: 1.0 …
-angular: … z: -0.6
+$ timeout --signal=INT --kill-after=2s 5s ros2 topic echo /turtle1/cmd_vel --once
+linear:
+  x: 1.0
+  y: 0.0
+  z: 0.0
+angular:
+  x: 0.0
+  y: 0.0
+  z: -0.6
+---
 ```
 
 ## Дефект: проверка частоты отключена
@@ -124,6 +136,7 @@ exit=124
 $ ros2 node list --no-daemon --spin-time 3
 /turtlesim
 $ ros2 topic info /turtle1/cmd_vel
+Type: geometry_msgs/msg/Twist
 Publisher count: 0
 Subscription count: 1
 $ timeout --signal=INT 5s ros2 topic hz /turtle1/cmd_vel
@@ -132,10 +145,13 @@ patrol exit=1
 ```
 
 ```text
-  File ".../rclpy/parameter_service.py", line 142, in _set_parameters_callback
-  File ".../rclpy/node.py", line 1038, in _call_post_set_parameters_callback
-  File ".../patrol/patrol.py", line 49, in apply
+[… 35 строк трейсбека: main → rclpy.spin → executor → parameter_service → set_parameters_atomically]
+  File "/opt/ros/lyrical/lib/python3.14/site-packages/rclpy/node.py", line 1038, in _call_post_set_parameters_callback
+    callback(parameter_list)
+    ~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/ros2_ws/tmp/pr04-defect/build/patrol/patrol/patrol.py", line 49, in apply
     self.timer = self.create_timer(1.0 / self.publish_hz, self.tick)
+                                   ~~~~^~~~~~~~~~~~~~~~~
 ZeroDivisionError: division by zero
 [ros2run]: Process exited with failure 1
 ```
@@ -171,13 +187,25 @@ ZeroDivisionError: division by zero
 
 ```text
 $ ros2 topic echo /turtle1/pose --once
-x: 1.9306063652038574  y: 6.471914291381836  theta: 2.971229314804077
+x: 1.9306063652038574
+y: 6.471914291381836
+theta: 2.971229314804077
+linear_velocity: 0.0
+angular_velocity: 0.0
+---
 $ ros2 service call /clear std_srvs/srv/Empty '{}'
+waiting for service to become available...
 requester: making request: std_srvs.srv.Empty_Request()
+
 response:
 std_srvs.srv.Empty_Response()
 $ ros2 topic echo /turtle1/pose --once
-x: 1.9306063652038574  y: 6.471914291381836  theta: 2.971229314804077
+x: 1.9306063652038574
+y: 6.471914291381836
+theta: 2.971229314804077
+linear_velocity: 0.0
+angular_velocity: 0.0
+---
 ```
 
 След стёрт (`turtlesim.log`: `Clearing turtlesim.`), поза та же.
@@ -188,19 +216,28 @@ x: 1.9306063652038574  y: 6.471914291381836  theta: 2.971229314804077
 $ ros2 action list -t
 /turtle1/rotate_absolute [turtlesim_msgs/action/RotateAbsolute]
 $ ros2 action info /turtle1/rotate_absolute
+Action: /turtle1/rotate_absolute
 Action clients: 0
 Action servers: 1
     /turtlesim
 $ ros2 action send_goal /turtle1/rotate_absolute \
     turtlesim_msgs/action/RotateAbsolute '{theta: 1.57}' --feedback
+Waiting for an action server to become available...
+Sending goal:
+     theta: 1.57
+
 Goal accepted with ID: aa4e1e3ffffd46ea89a634261c873965
+
 Feedback:
     remaining: -1.4012292623519897
-…  (88 сообщений feedback)
+
+[… 258 строк: ещё 86 сообщений feedback из 88]
 Feedback:
     remaining: -0.009229302406311035
+
 Result:
     delta: 1.3919999599456787
+
 Goal finished with status: SUCCEEDED
 ```
 
