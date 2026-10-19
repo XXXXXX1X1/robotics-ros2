@@ -1,8 +1,7 @@
 from geometry_msgs.msg import Twist
 from patrol.command import choose_command, validate_values
+from patrol.runner import run_node
 from rcl_interfaces.msg import SetParametersResult
-import rclpy
-from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from rclpy.parameter import Parameter
 from turtlesim_msgs.msg import Pose
@@ -24,7 +23,7 @@ class Patrol(Node):
         self.add_post_set_parameters_callback(self.apply)
         self.latest_pose: Pose | None = None
         self.pose_sub = self.create_subscription(
-            Pose, '/turtle1/pose', self.on_pose, 10)
+            Pose, 'pose', self.on_pose, 10)
         self.publisher = self.create_publisher(Twist, 'cmd_vel', 10)
         self.timer = self.create_timer(1.0 / self.publish_hz, self.tick)
 
@@ -61,14 +60,7 @@ class Patrol(Node):
 
 
 def main(args: list[str] | None = None) -> None:
-    # Ctrl+C под `ros2 run` приходит дважды: от терминала и пересланный ros2run.
-    # Второй сигнал может прервать освобождение ресурсов, поэтому ловим его
-    # снаружи блока, который сам завершает контекст и уничтожает ноду.
-    try:
-        with rclpy.init(args=args):
-            rclpy.spin(Patrol())
-    except (KeyboardInterrupt, ExternalShutdownException):
-        pass
+    run_node(Patrol, args)
 
 
 if __name__ == '__main__':

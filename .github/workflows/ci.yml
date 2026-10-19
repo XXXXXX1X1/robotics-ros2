@@ -1,4 +1,4 @@
-name: PR04 evidence
+name: PR05 evidence
 
 on: [push, pull_request]
 
@@ -7,8 +7,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      COURSE_KIT_URL: https://ros.lms.ci.nsu.ru/downloads/robotics-course-kit-v1-w04-fec6b4e886c1.tar.gz
-      COURSE_KIT_SHA256: fec6b4e886c19146078bf69fbf90a19279a4cd33f656642395350b299efeb226
+      COURSE_KIT_URL: https://ros.lms.ci.nsu.ru/downloads/robotics-course-kit-v1-w07-001f7ec79674.tar.gz
+      COURSE_KIT_SHA256: 001f7ec79674d09a0f7eff2ad0935f58c95101b0cf200425c368f41579d6a31c
       ROS_IMAGE: ros:lyrical-ros-base@sha256:0c19f326a339ed770ef1d4c0646a8b53bdb49dd5ff74b6de41ebdb8ac21e1806
     steps:
       - name: Checkout full history
@@ -22,7 +22,7 @@ jobs:
           printf '%s  %s\n' "$COURSE_KIT_SHA256" course-kit.tar.gz | sha256sum -c -
           mkdir -p .course-kit
           tar -xzf course-kit.tar.gz -C .course-kit
-      - name: Build packages and run patrol tests
+      - name: Build packages and run tests
         shell: bash
         run: |
           docker run --rm -v "$PWD:/ws" -w /ws "$ROS_IMAGE" bash -c '
@@ -33,27 +33,32 @@ jobs:
             # на старой: без обновления turtlesim_msgs падает на undefined symbol.
             DEBIAN_FRONTEND=noninteractive apt-get upgrade -y -qq > /dev/null
             rosdep update -q --rosdistro lyrical > /dev/null
-            rosdep install --from-paths src/patrol --ignore-src -y -q --rosdistro lyrical
-            colcon build --packages-select turtle_bringup patrol
+            rosdep install --from-paths src --ignore-src -y -q --rosdistro lyrical
+            colcon build --packages-select turtle_bringup patrol course_bringup
             source install/setup.bash
             test -f install/turtle_bringup/share/turtle_bringup/launch/sim.launch.py
+            test -f install/course_bringup/share/course_bringup/launch/patrol.launch.py
             ros2 pkg executables patrol | grep -qx "patrol patrol"
+            ros2 pkg executables patrol | grep -qx "patrol pose_relay"
+            ros2 pkg executables patrol | grep -qx "patrol pose_listener"
+            # У пакетов одинаковые имена lint-тестов, поэтому pytest — по одному пакету.
             python3 -m pytest src/patrol/test
-            colcon test --packages-select patrol --event-handlers console_direct+
+            python3 -m pytest src/course_bringup/test
+            colcon test --packages-select patrol course_bringup --event-handlers console_direct+
             colcon test-result --verbose
           '
       - name: Validate report and kit checksum
         shell: bash
         run: |
-          python3 -m json.tool evidence/pr04/report.json > /dev/null
+          python3 -m json.tool evidence/pr05/report.json > /dev/null
           python3 - <<'PYTHON'
           import json
           import os
           from pathlib import Path
-          report = json.loads(Path('evidence/pr04/report.json').read_text())
+          report = json.loads(Path('evidence/pr05/report.json').read_text())
           if report['course_kit']['archive_sha256'] != os.environ['COURSE_KIT_SHA256']:
               raise SystemExit('Course kit SHA-256 in report differs from CI')
           PYTHON
-      - name: Check PR04 evidence and implementation commit
+      - name: Check PR05 evidence and implementation commit
         shell: bash
-        run: python3 .course-kit/v1/tools/check_practice.py PR04 --submission .
+        run: python3 .course-kit/v1/tools/check_practice.py PR05 --submission .

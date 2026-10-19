@@ -1,3 +1,80 @@
+# ПР05. Launch, QoS и повтор записи
+
+Практика: [условие ПР05](https://ros.lms.ci.nsu.ru/practices/pr05).
+Пакет `src/course_bringup` — launch-файл `patrol.launch.py`: глобальный
+turtlesim (через `sim.launch.py` из ПР02) и в пространстве имён
+`namespace` три ноды пакета `patrol`:
+
+- `patrol` — команда из ПР04, remap `pose`→`/turtle1/pose`,
+  `cmd_vel`→`/turtle1/cmd_vel`;
+- `pose_relay` — пересылает `/turtle1/pose` в относительный `sensor_pose`
+  с QoS best_effort, keep_last 10;
+- `pose_listener` — подписчик `sensor_pose`, надёжность из параметра
+  `reliability`, раз в секунду пишет в лог число полученных сообщений.
+
+Аргументы: `namespace` (`robot_a`), `record` (`false`; через `IfCondition`
+запускает `ros2 bag record -s mcap`), `bag_dir` (`bag`),
+`subscriber_reliability` (`best_effort` | `reliable`). Имена топиков внутри
+нод относительные, поэтому `patrol` теперь подписан на `pose`: для
+`ros2 run` из ПР03/ПР04 добавьте `-r pose:=/turtle1/pose`.
+`config/qos-overrides.yaml` — профиль издателя для `ros2 bag play`.
+Опыт и выводы — в `evidence/pr05/`.
+
+## Сборка и тесты
+
+```bash
+colcon build --symlink-install --packages-select turtle_bringup patrol course_bringup
+source install/setup.bash
+python3 -m pytest src/patrol/test
+python3 -m pytest src/course_bringup/test
+```
+
+У пакетов одинаковые имена lint-тестов, поэтому pytest запускается по
+одному пакету. `test_pose_relay.py` в одном процессе проверяет, что relay
+публикует best_effort, best_effort-подписчик получает поток, а reliable
+видит издателя и не получает ничего.
+
+## Запуск
+
+```bash
+ros2 launch course_bringup patrol.launch.py \
+  namespace:=robot_a subscriber_reliability:=reliable record:=false
+ros2 launch course_bringup patrol.launch.py \
+  namespace:=robot_a subscriber_reliability:=best_effort \
+  record:=true bag_dir:=evidence/pr05/bag
+ros2 bag play evidence/pr05/bag \
+  --qos-profile-overrides-path config/qos-overrides.yaml
+```
+
+## Ctrl+C и `RCLError`
+
+Все три ноды запускаются через общий `patrol/runner.py`. Он закрывает два
+сбоя остановки, которые проявились под `ros2 launch`:
+
+- Ctrl+C в терминале доставляет SIGINT дважды: всей группе процессов и
+  повторно от launch. Второй сигнал приходил, когда rclpy уже вернул
+  питоновский обработчик, и нода умирала с `exit code -2` (`patrol` — 20 из
+  20 остановок). `run_node` ставит SIG_IGN до `rclpy.init`, поэтому после
+  выхода rclpy восстанавливает именно его.
+- rclpy иногда бросает из `spin` `RCLError: failed to initialize wait set`
+  вместо `ExternalShutdownException`, если поток сигналов завершил контекст
+  между итерациями — открытый
+  [ros2/rclpy#1731](https://github.com/ros2/rclpy/issues/1731).
+  `run_node` глотает `RCLError`, только если контекст уже завершён.
+
+После правки — 20 из 20 чистых остановок всех четырёх процессов launch
+(SIGINT на группу, как Ctrl+C в терминале).
+
+## Проверка и сдача
+
+Course kit обновлён до `v1-w07`
+(SHA-256 `001f7ec79674d09a0f7eff2ad0935f58c95101b0cf200425c368f41579d6a31c`).
+CI ставит зависимости всех пакетов через `rosdep`, собирает три пакета,
+запускает pytest и `colcon test`, затем `check_practice.py PR05`.
+Проверка PR04 из CI убрана: ПР04 сдана коммитом `b9641a9` и его прогоном CI.
+
+---
+
 # ПР04. Параметры patrol: скорость, поворот, частота
 
 Практика: [условие ПР04](https://ros.lms.ci.nsu.ru/practices/pr04).
