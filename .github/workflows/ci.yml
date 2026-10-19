@@ -29,6 +29,9 @@ jobs:
             set -eo pipefail
             source /opt/ros/lyrical/setup.bash
             apt-get update -qq
+            # rosdep ставит пакеты из текущей синхронизации ROS, а образ закреплён
+            # на старой: без обновления turtlesim_msgs падает на undefined symbol.
+            DEBIAN_FRONTEND=noninteractive apt-get upgrade -y -qq > /dev/null
             rosdep update -q --rosdistro lyrical > /dev/null
             rosdep install --from-paths src/patrol --ignore-src -y -q --rosdistro lyrical
             colcon build --packages-select turtle_bringup patrol
