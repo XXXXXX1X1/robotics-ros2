@@ -1,4 +1,4 @@
-name: PR05 evidence
+name: PR06 evidence
 
 on: [push, pull_request]
 
@@ -34,31 +34,40 @@ jobs:
             DEBIAN_FRONTEND=noninteractive apt-get upgrade -y -qq > /dev/null
             rosdep update -q --rosdistro lyrical > /dev/null
             rosdep install --from-paths src --ignore-src -y -q --rosdistro lyrical
-            colcon build --packages-select turtle_bringup patrol course_bringup
+            colcon build --packages-select turtle_bringup patrol course_bringup course_description
             source install/setup.bash
             test -f install/turtle_bringup/share/turtle_bringup/launch/sim.launch.py
             test -f install/course_bringup/share/course_bringup/launch/patrol.launch.py
+            test -f install/course_description/share/course_description/launch/description.launch.py
+            xacro install/course_description/share/course_description/urdf/vehicle.urdf.xacro > /tmp/vehicle.urdf
+            check_urdf /tmp/vehicle.urdf
+            ros2 launch course_description description.launch.py &
+            LAUNCH_PID=$!
+            timeout 30 ros2 topic echo /tf_static tf2_msgs/msg/TFMessage --once --qos-durability transient_local --qos-reliability reliable | grep lidar_link > /dev/null
+            kill -TERM "$LAUNCH_PID"
+            wait "$LAUNCH_PID" || true
             ros2 pkg executables patrol | grep -qx "patrol patrol"
             ros2 pkg executables patrol | grep -qx "patrol pose_relay"
             ros2 pkg executables patrol | grep -qx "patrol pose_listener"
             # У пакетов одинаковые имена lint-тестов, поэтому pytest — по одному пакету.
             python3 -m pytest src/patrol/test
             python3 -m pytest src/course_bringup/test
-            colcon test --packages-select patrol course_bringup --event-handlers console_direct+
+            python3 -m pytest src/course_description/test
+            colcon test --packages-select patrol course_bringup course_description --event-handlers console_direct+
             colcon test-result --verbose
           '
       - name: Validate report and kit checksum
         shell: bash
         run: |
-          python3 -m json.tool evidence/pr05/report.json > /dev/null
+          python3 -m json.tool evidence/pr06/report.json > /dev/null
           python3 - <<'PYTHON'
           import json
           import os
           from pathlib import Path
-          report = json.loads(Path('evidence/pr05/report.json').read_text())
+          report = json.loads(Path('evidence/pr06/report.json').read_text())
           if report['course_kit']['archive_sha256'] != os.environ['COURSE_KIT_SHA256']:
               raise SystemExit('Course kit SHA-256 in report differs from CI')
           PYTHON
-      - name: Check PR05 evidence and implementation commit
+      - name: Check PR06 evidence and implementation commit
         shell: bash
-        run: python3 .course-kit/v1/tools/check_practice.py PR05 --submission .
+        run: python3 .course-kit/v1/tools/check_practice.py PR06 --submission .

@@ -1,3 +1,66 @@
+# ПР06. Модель робота, tf2 и QoS преобразований
+
+Практика: [условие ПР06](https://ros.lms.ci.nsu.ru/practices/pr06).
+Пакет `src/course_description` — Xacro-модель Ackermann-робота
+`urdf/vehicle.urdf.xacro`. Размеры взяты из `model.sdf` course kit, плагины
+Gazebo не копируются. База, колея и радиус колеса — аргументы Xacro
+`wheel_base`, `track_width`, `wheel_radius`. Корень дерева — `base_link`, к нему
+фиксированно привязаны `camera_link`, `lidar_link`, `imu_link`. Передние колёса
+висят на кулаках с рулевым `revolute`, все колёса — `continuous`.
+`launch/description.launch.py` запускает `robot_state_publisher` и по `rviz:=true`
+открывает RViz. Владельцы связей — в `evidence/pr06/frames.md`, опыт с durability —
+в `evidence/pr06/tf-qos.txt`.
+
+## Сборка и тесты
+
+```bash
+colcon build --symlink-install --packages-select course_description
+source install/setup.bash
+xacro src/course_description/urdf/vehicle.urdf.xacro > /tmp/vehicle.urdf
+check_urdf /tmp/vehicle.urdf
+python3 -m pytest src/course_description/test
+colcon test --packages-select course_description
+```
+
+`test_model.py` разворачивает Xacro и проверяет связность дерева, parent, тип и
+смещение каждого сочленения, положение сенсоров в `base_link`, радиус и ось
+колёс, допустимость инерции и то, что аргументы Xacro действительно меняют
+геометрию.
+
+## Запуск
+
+```bash
+ros2 launch course_description description.launch.py rviz:=true
+ros2 run tf2_ros tf2_echo base_link lidar_link
+ros2 run tf2_tools view_frames
+```
+
+Fixed Frame в RViz — `base_link`. Колёса и кулаки подвижные, поэтому без
+`joint_states` их нет в `/tf`, и у RobotModel статус ошибки по этим звеньям. Это
+ожидаемо, фиксированные связи сенсоров публикуются сразу. Увидеть всю модель:
+
+```bash
+ros2 topic pub -r 10 /joint_states sensor_msgs/msg/JointState \
+  "{header: auto, name: [front_left_steering_joint, front_right_steering_joint, \
+  front_left_wheel_joint, front_right_wheel_joint, rear_left_wheel_joint, \
+  rear_right_wheel_joint], position: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}"
+```
+
+## Дефект
+
+Ветка `pr06-defect` (в `main` не вливается) делает `camera_link` родителем
+`lidar_link` с прежним смещением. `check_urdf` такое дерево принимает, а лидар
+уезжает в `0.56 0 0.76`. Тесты parent и положения лидара падают.
+
+## Проверка и сдача
+
+Course kit тот же — `v1-w07` (в нём есть манифест PR06). CI собирает все пакеты,
+разворачивает Xacro и выполняет `check_urdf`, запускает pytest и `colcon test`,
+затем `check_practice.py PR06`. Проверка PR05 из CI убрана: ПР05 сдана коммитом
+`0042f9b` и его прогоном CI.
+
+---
+
 # ПР05. Launch, QoS и повтор записи
 
 Практика: [условие ПР05](https://ros.lms.ci.nsu.ru/practices/pr05).

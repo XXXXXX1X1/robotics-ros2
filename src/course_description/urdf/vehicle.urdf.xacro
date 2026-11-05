@@ -1,0 +1,126 @@
+<?xml version="1.0"?>
+<!-- Размеры и массы взяты из course kit: models/course_ackermann/model.sdf.
+     Единицы СИ, оси REP-103: x вперёд, y влево, z вверх. -->
+<robot name="course_ackermann" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:arg name="wheel_base" default="0.8"/>
+  <xacro:arg name="track_width" default="0.62"/>
+  <xacro:arg name="wheel_radius" default="0.12"/>
+
+  <xacro:property name="wheel_base" value="$(arg wheel_base)"/>
+  <xacro:property name="track_width" value="$(arg track_width)"/>
+  <xacro:property name="wheel_radius" value="$(arg wheel_radius)"/>
+  <xacro:property name="wheel_width" value="0.07"/>
+  <xacro:property name="wheel_mass" value="0.8"/>
+  <xacro:property name="wheel_transverse_inertia"
+                  value="${wheel_mass * (3 * wheel_radius**2 + wheel_width**2) / 12}"/>
+  <xacro:property name="body_size" value="1.05 0.52 0.22"/>
+  <xacro:property name="body_z" value="0.12"/>
+  <xacro:property name="steering_limit" value="0.55"/>
+  <xacro:property name="steering_effort" value="25.0"/>
+  <!-- В SDF скорости руля нет, а URDF требует её у revolute. -->
+  <xacro:property name="steering_velocity" value="2.0"/>
+  <xacro:property name="sensor_xyz" value="0.28 0 0.38"/>
+  <xacro:property name="sensor_mass" value="0.033333333333"/>
+  <xacro:property name="sensor_inertia" value="0.000333333333"/>
+
+  <material name="body"><color rgba="0.05 0.36 0.72 1"/></material>
+  <material name="wheel"><color rgba="0.04 0.04 0.04 1"/></material>
+  <material name="camera"><color rgba="0.9 0.6 0.1 1"/></material>
+  <material name="lidar"><color rgba="0.8 0.1 0.1 1"/></material>
+  <material name="imu"><color rgba="0.1 0.7 0.3 1"/></material>
+
+  <xacro:macro name="diagonal_inertial" params="mass ixx iyy izz">
+    <inertial>
+      <mass value="${mass}"/>
+      <inertia ixx="${ixx}" ixy="0" ixz="0" iyy="${iyy}" iyz="0" izz="${izz}"/>
+    </inertial>
+  </xacro:macro>
+
+  <!-- Поворотный кулак: только сочленение руля, геометрии нет, как в SDF. -->
+  <xacro:macro name="knuckle" params="prefix x y">
+    <link name="${prefix}_knuckle">
+      <xacro:diagonal_inertial mass="0.2" ixx="0.001" iyy="0.001" izz="0.001"/>
+    </link>
+    <joint name="${prefix}_steering_joint" type="revolute">
+      <parent link="base_link"/>
+      <child link="${prefix}_knuckle"/>
+      <origin xyz="${x} ${y} 0"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="${-steering_limit}" upper="${steering_limit}"
+             effort="${steering_effort}" velocity="${steering_velocity}"/>
+    </joint>
+  </xacro:macro>
+
+  <!-- Система колеса совпадает с корпусом, поэтому ось вращения y; цилиндр
+       геометрии (его ось z) повёрнут на 90°. Инерция — цилиндр с осью y. -->
+  <xacro:macro name="wheel" params="prefix parent x y">
+    <link name="${prefix}_wheel">
+      <visual>
+        <origin rpy="${pi/2} 0 0"/>
+        <geometry><cylinder radius="${wheel_radius}" length="${wheel_width}"/></geometry>
+        <material name="wheel"/>
+      </visual>
+      <collision>
+        <origin rpy="${pi/2} 0 0"/>
+        <geometry><cylinder radius="${wheel_radius}" length="${wheel_width}"/></geometry>
+      </collision>
+      <xacro:diagonal_inertial
+        mass="${wheel_mass}"
+        ixx="${wheel_transverse_inertia}"
+        iyy="${wheel_mass * wheel_radius**2 / 2}"
+        izz="${wheel_transverse_inertia}"/>
+    </link>
+    <joint name="${prefix}_wheel_joint" type="continuous">
+      <parent link="${parent}"/>
+      <child link="${prefix}_wheel"/>
+      <origin xyz="${x} ${y} 0"/>
+      <axis xyz="0 1 0"/>
+    </joint>
+  </xacro:macro>
+
+  <!-- В SDF у сенсоров нет геометрии: коробки условные, важна система координат. -->
+  <xacro:macro name="sensor" params="name parent size">
+    <link name="${name}_link">
+      <visual>
+        <geometry><box size="${size}"/></geometry>
+        <material name="${name}"/>
+      </visual>
+      <collision>
+        <geometry><box size="${size}"/></geometry>
+      </collision>
+      <xacro:diagonal_inertial mass="${sensor_mass}" ixx="${sensor_inertia}"
+                               iyy="${sensor_inertia}" izz="${sensor_inertia}"/>
+    </link>
+    <joint name="${name}_joint" type="fixed">
+      <parent link="${parent}"/>
+      <child link="${name}_link"/>
+      <origin xyz="${sensor_xyz}"/>
+    </joint>
+  </xacro:macro>
+
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 ${body_z}"/>
+      <geometry><box size="${body_size}"/></geometry>
+      <material name="body"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 ${body_z}"/>
+      <geometry><box size="${body_size}"/></geometry>
+    </collision>
+    <xacro:diagonal_inertial mass="12.0" ixx="0.55" iyy="1.10" izz="1.40"/>
+  </link>
+
+  <xacro:knuckle prefix="front_left" x="${wheel_base / 2}" y="${track_width / 2}"/>
+  <xacro:knuckle prefix="front_right" x="${wheel_base / 2}" y="${-track_width / 2}"/>
+  <xacro:wheel prefix="front_left" parent="front_left_knuckle" x="0" y="0"/>
+  <xacro:wheel prefix="front_right" parent="front_right_knuckle" x="0" y="0"/>
+  <xacro:wheel prefix="rear_left" parent="base_link"
+               x="${-wheel_base / 2}" y="${track_width / 2}"/>
+  <xacro:wheel prefix="rear_right" parent="base_link"
+               x="${-wheel_base / 2}" y="${-track_width / 2}"/>
+
+  <xacro:sensor name="camera" parent="base_link" size="0.04 0.14 0.03"/>
+  <xacro:sensor name="lidar" parent="base_link" size="0.08 0.08 0.06"/>
+  <xacro:sensor name="imu" parent="base_link" size="0.12 0.02 0.01"/>
+</robot>
