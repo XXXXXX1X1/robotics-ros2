@@ -1,0 +1,5 @@
+# main, связь возвращена: lidar_link снова привязан к base_link
+$ python3 -m pytest src/course_description/test/test_model.py
+src/course_description/test/test_model.py .............................  [100%]
+
+============================== 29 passed in 0.29s ==============================

@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "practice_id": "PR06",
+  "commit": "9e7a33240aeb64f82be2d956b8ecfe4ab66a9cfc",
+  "course_kit": {
+    "version": "v1-w07",
+    "archive_sha256": "001f7ec79674d09a0f7eff2ad0935f58c95101b0cf200425c368f41579d6a31c"
+  },
+  "environment": {
+    "os": "Ubuntu 26.04.1 LTS (container)",
+    "ros_distro": "lyrical",
+    "python": "3.14.4",
+    "docker_image": "tiryoh/ros2-desktop-vnc:lyrical-20260906T0836",
+    "ros_domain_id": 16
+  },
+  "commands": [
+    "source /opt/ros/lyrical/setup.bash",
+    "export DISPLAY=:1 XAUTHORITY=/home/ubuntu/.Xauthority ROS_DOMAIN_ID=16",
+    "colcon build --symlink-install --packages-select course_description",
+    "source install/setup.bash",
+    "xacro src/course_description/urdf/vehicle.urdf.xacro > /tmp/vehicle.urdf",
+    "check_urdf /tmp/vehicle.urdf",
+    "python3 -m pytest -v src/course_description/test",
+    "colcon test --packages-select course_description",
+    "colcon test-result --verbose --test-result-base build/course_description",
+    "ros2 launch course_description description.launch.py",
+    "ros2 topic info /tf_static --verbose",
+    "timeout 4 ros2 topic echo /tf_static --once --qos-durability transient_local --qos-reliability reliable",
+    "timeout 4 ros2 topic echo /tf_static --once --qos-durability volatile --qos-reliability reliable",
+    "ros2 topic info /tf --verbose --no-daemon --spin-time 3",
+    "ros2 run tf2_ros tf2_echo base_link lidar_link",
+    "ros2 run tf2_tools view_frames",
+    "ros2 topic echo /tf_static --once",
+    "ros2 launch course_description description.launch.py rviz:=true",
+    "ros2 topic pub -r 10 /joint_states sensor_msgs/msg/JointState (нулевые положения всех шести сочленений)",
+    "git worktree add -b pr06-defect <каталог> 9e7a33240aeb64f82be2d956b8ecfe4ab66a9cfc",
+    "ros2 run tf2_ros tf2_echo camera_link lidar_link",
+    "python3 -m pytest src/course_description/test/test_model.py",
+    "python3 .course-kit/v1/tools/check_practice.py PR06 --submission ."
+  ],
+  "tests": [
+    {
+      "name": "pytest course_description: связность и отсутствие циклов, parent, тип и смещение каждого сочленения, положение сенсоров в base_link, радиус и ось колёс, аргументы Xacro, инерция, check_urdf, линтеры — 35 passed, 1 skipped",
+      "status": "passed",
+      "evidence": "tests.txt"
+    },
+    {
+      "name": "colcon test course_description: 36 tests, 0 errors, 0 failures, 1 skipped",
+      "status": "passed",
+      "evidence": "tests.txt, model-check.txt"
+    },
+    {
+      "name": "check_urdf: root Link base_link, 7 прямых потомков, exit 0",
+      "status": "passed",
+      "evidence": "model-check.txt"
+    },
+    {
+      "name": "QoS /tf_static: один издатель RELIABLE, TRANSIENT_LOCAL; поздний echo transient_local получает преобразования (exit=0), echo volatile ничего не получает (exit=124)",
+      "status": "passed",
+      "evidence": "tf-qos.txt"
+    },
+    {
+      "name": "tf2_echo base_link lidar_link: 0.280 0.000 0.380; view_frames: три фиксированные связи от base_link; RViz с Fixed Frame base_link: Global Status Ok",
+      "status": "passed",
+      "evidence": "tf2-echo-lidar.txt, frames.gv, frames.pdf, rviz.png"
+    },
+    {
+      "name": "Ветка pr06-defect: check_urdf exit 0, tf2_echo base_link lidar_link 0.560 0.000 0.760, падают test_joint_parent_and_type[lidar_link] и test_sensor_position_in_base_link[lidar_link] — 2 failed, 27 passed",
+      "status": "passed",
+      "evidence": "defect.txt, tf2-echo-lidar-defect.txt, tf2-echo-camera-lidar-defect.txt, frames-defect.gv, rviz-defect.png"
+    },
+    {
+      "name": "После возврата связи тот же test_model.py: 29 passed",
+      "status": "passed",
+      "evidence": "fixed.txt"
+    }
+  ],
+  "defect": {
+    "reproducer": "В ветке pr06-defect у lidar_link родитель camera_link вместо base_link, смещение 0.28 0 0.38 прежнее. check_urdf принимает дерево (exit 0). ros2 run tf2_ros tf2_echo base_link lidar_link показывает 0.560 0.000 0.760 вместо 0.280 0.000 0.380, в RViz лидар висит выше и впереди камеры. python3 -m pytest src/course_description/test/test_model.py: падают test_joint_parent_and_type[lidar_link] и test_sensor_position_in_base_link[lidar_link].",
+    "root_cause": "Смещение в origin задаётся относительно родительского звена. При смене родителя то же смещение прибавляется к положению камеры, и лидар оказывается в другой точке. Дерево при этом остаётся связным и без циклов, поэтому check_urdf ошибку не видит: он проверяет структуру, а не смысл связи.",
+    "proof_after": "В main родитель lidar_link снова base_link: tf2_echo base_link lidar_link показывает 0.280 0.000 0.380, view_frames показывает base_link -> lidar_link, тот же test_model.py — 29 passed."
+  },
+  "claims": {
+    "public_tests_passed": true,
+    "defect_reproduced": true,
+    "defect_fixed": true
+  },
+  "time": {
+    "contact_academic_hours": 2,
+    "self_study_hours": 2
+  },
+  "ai_used": true
+}
