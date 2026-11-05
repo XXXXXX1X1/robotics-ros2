@@ -121,6 +121,6 @@
                x="${-wheel_base / 2}" y="${-track_width / 2}"/>
 
   <xacro:sensor name="camera" parent="base_link" size="0.04 0.14 0.03"/>
-  <xacro:sensor name="lidar" parent="base_link" size="0.08 0.08 0.06"/>
+  <xacro:sensor name="lidar" parent="camera_link" size="0.08 0.08 0.06"/>
   <xacro:sensor name="imu" parent="base_link" size="0.12 0.02 0.01"/>
 </robot>
